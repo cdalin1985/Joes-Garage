@@ -94,9 +94,9 @@ export function Stat({
     blue: "text-brand-600",
   }[tone];
   return (
-    <Card>
-      <p className="text-xs font-medium uppercase tracking-wide text-slate-500">{label}</p>
-      <p className={clsx("mt-2 text-2xl font-bold", toneClass)}>{value}</p>
+    <Card className="card-hover">
+      <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">{label}</p>
+      <p className={clsx("mt-2 font-display text-2xl font-bold tabular-nums", toneClass)}>{value}</p>
       {hint && <p className="mt-1 text-xs text-slate-400">{hint}</p>}
     </Card>
   );

@@ -150,10 +150,10 @@ export default function LoginPage() {
     <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-900 to-brand-950 px-6 py-12">
       <div className="w-full max-w-sm">
         <div className="mb-6 text-center">
-          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-accent-500 text-2xl font-black text-white shadow-lg">
+          <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-2xl bg-accent-500 font-display text-2xl font-black text-slate-900 shadow-lg ring-1 ring-accent-300/50">
             JG
           </div>
-          <h1 className="text-xl font-bold text-white">Joe&apos;s Garage</h1>
+          <h1 className="font-display text-2xl font-bold tracking-tight text-white">Joe&apos;s Garage</h1>
           <p className="text-sm text-slate-300">Shop Management</p>
         </div>
         <Suspense fallback={<div className="card card-pad text-center text-slate-500">Loading…</div>}>

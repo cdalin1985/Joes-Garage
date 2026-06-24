@@ -22,9 +22,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <div className="flex min-h-screen">
       <Sidebar isAdmin={isAdmin(profile)} shopName={shopName} />
       <div className="flex min-w-0 flex-1 flex-col">
-        <Topbar name={profile.full_name || profile.email || "Staff"} role={profile.role} />
+        <Topbar
+          name={profile.full_name || profile.email || "Staff"}
+          role={profile.role}
+          isAdmin={isAdmin(profile)}
+        />
         <main className="flex-1 px-4 py-6 lg:px-8">
-          <div className="mx-auto max-w-6xl">{children}</div>
+          <div className="mx-auto max-w-6xl animate-rise">{children}</div>
         </main>
       </div>
     </div>
