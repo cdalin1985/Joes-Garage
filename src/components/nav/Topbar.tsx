@@ -76,7 +76,7 @@ export function Topbar({
           <path d="M3 6h18M3 12h18M3 18h18" strokeLinecap="round" />
         </svg>
       </button>
-      <span className="font-display font-bold text-slate-800 lg:hidden">Joe&apos;s Garage</span>
+      <span className="font-script text-xl font-bold leading-none text-slate-800 lg:hidden">Joe&apos;s Garage</span>
 
       {/* Global search */}
       <form action="/customers" className="relative hidden max-w-md flex-1 sm:block">

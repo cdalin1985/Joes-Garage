@@ -70,6 +70,7 @@ const config: Config = {
       fontFamily: {
         sans: ["var(--font-sans)", "system-ui", "sans-serif"],
         display: ["var(--font-display)", "var(--font-sans)", "sans-serif"],
+        script: ["var(--font-script)", "cursive"],
       },
       boxShadow: {
         card: "0 1px 2px rgba(33, 29, 24, 0.04), 0 4px 12px -4px rgba(33, 29, 24, 0.08)",

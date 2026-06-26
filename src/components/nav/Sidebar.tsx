@@ -99,7 +99,7 @@ export function Sidebar({ isAdmin, shopName }: { isAdmin: boolean; shopName: str
         <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-accent-300 to-accent-500 font-display text-base font-bold tracking-tight text-slate-900 shadow-lg ring-1 ring-accent-200/40">
           JG
         </span>
-        <span className="truncate font-display text-lg font-bold tracking-tight text-white">
+        <span className="truncate font-script text-2xl font-bold leading-none text-white">
           {shopName}
         </span>
       </Link>
