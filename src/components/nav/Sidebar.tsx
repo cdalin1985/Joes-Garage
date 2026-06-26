@@ -37,6 +37,7 @@ const CRM: NavItem[] = [
 const ADMIN: NavItem[] = [
   { href: "/accounting", label: "Accounting", icon: IconCalculator },
   { href: "/accounting/reports", label: "Reports & Tax", icon: IconReport },
+  { href: "/accounting/tax", label: "Tax Center", icon: IconReport },
   { href: "/settings", label: "Settings", icon: IconSettings },
   { href: "/staff", label: "Staff", icon: IconUsers },
 ];

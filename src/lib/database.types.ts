@@ -53,6 +53,25 @@ export type AppointmentStatus =
   | "completed"
   | "no_show"
   | "cancelled";
+export type EntityType =
+  | "sole_prop"
+  | "single_llc"
+  | "partnership"
+  | "multi_llc"
+  | "s_corp"
+  | "c_corp";
+export type FilingStatus = "single" | "mfj" | "mfs" | "hoh" | "qw";
+export type AccountingMethod = "cash" | "accrual";
+export type MileageMethod = "standard" | "actual";
+export type AssetCategory =
+  | "vehicle"
+  | "machinery"
+  | "tools"
+  | "computers"
+  | "furniture"
+  | "building"
+  | "improvement"
+  | "other";
 
 type Timestamps = { created_at: string; updated_at: string };
 
@@ -234,6 +253,11 @@ export interface Vendor extends Timestamps {
   address: string | null;
   notes: string | null;
   is_active: boolean;
+  is_1099: boolean;
+  tax_id: string | null;
+  tax_id_type: string | null;
+  legal_name: string | null;
+  w9_on_file: boolean;
 }
 
 export interface Part extends Timestamps {
@@ -294,6 +318,101 @@ export interface Appointment extends Timestamps {
   created_by: string | null;
 }
 
+export interface TaxProfile extends Timestamps {
+  id: number;
+  entity_type: EntityType;
+  legal_business_name: string | null;
+  dba_name: string | null;
+  ein: string | null;
+  owner_ssn_last4: string | null;
+  naics_code: string | null;
+  business_description: string | null;
+  business_start_date: string | null;
+  state_of_operation: string | null;
+  state_tax_id: string | null;
+  state_unemployment_id: string | null;
+  accounting_method: AccountingMethod;
+  first_year_filing: boolean;
+  materially_participates: boolean;
+  has_employees: boolean;
+  files_1099: boolean;
+  made_payments_req_1099: boolean | null;
+  owner_full_name: string | null;
+  filing_status: FilingStatus;
+  spouse_name: string | null;
+  spouse_w2_income: number;
+  other_household_income: number;
+  dependents: number;
+  prior_year_agi: number;
+  prior_year_total_tax: number;
+  est_other_deductions: number;
+  use_itemized: boolean;
+  itemized_deductions: number;
+  sep_simple_401k_contrib: number;
+  health_insurance_premium: number;
+  hsa_contribution: number;
+  has_home_office: boolean;
+  home_office_sqft: number;
+  home_total_sqft: number;
+  home_office_use_simplified: boolean;
+  home_rent_mortgage_year: number;
+  home_utilities_year: number;
+  home_insurance_year: number;
+  home_repairs_year: number;
+  vehicle_description: string | null;
+  vehicle_in_service_date: string | null;
+  vehicle_method: MileageMethod;
+  vehicle_total_miles: number;
+  vehicle_commute_miles: number;
+  vehicle_actual_expenses: number;
+  vehicle_has_another: boolean;
+  pay_state_estimates: boolean;
+  state_tax_rate: number;
+  safe_harbor_target: number;
+  notes: string | null;
+}
+
+export interface EstimatedTaxPayment extends Timestamps {
+  id: string;
+  tax_year: number;
+  quarter: number;
+  jurisdiction: string;
+  amount: number;
+  paid_date: string | null;
+  confirmation: string | null;
+  notes: string | null;
+  created_by: string | null;
+}
+
+export interface MileageLog extends Timestamps {
+  id: string;
+  trip_date: string;
+  miles: number;
+  purpose: string | null;
+  from_location: string | null;
+  to_location: string | null;
+  odometer_start: number | null;
+  odometer_end: number | null;
+  work_order_id: string | null;
+  created_by: string | null;
+}
+
+export interface AssetPurchase extends Timestamps {
+  id: string;
+  description: string;
+  category: AssetCategory;
+  vendor_name: string | null;
+  purchase_date: string;
+  cost: number;
+  business_use_pct: number;
+  recovery_years: number;
+  section_179: boolean;
+  bonus_depreciation: boolean;
+  disposed_date: string | null;
+  notes: string | null;
+  created_by: string | null;
+}
+
 // Generic table mapping for the Supabase generic client.
 type Row<T> = T;
 type Insert<T> = Partial<T>;
@@ -319,6 +438,10 @@ export interface Database {
       expense_categories: TableDef<ExpenseCategory>;
       expenses: TableDef<Expense>;
       appointments: TableDef<Appointment>;
+      tax_profile: TableDef<TaxProfile>;
+      estimated_tax_payments: TableDef<EstimatedTaxPayment>;
+      mileage_logs: TableDef<MileageLog>;
+      asset_purchases: TableDef<AssetPurchase>;
     };
     Views: {
       [key: string]: { Row: Record<string, unknown> };
@@ -333,6 +456,11 @@ export interface Database {
       work_order_status: WorkOrderStatus;
       work_order_priority: WorkOrderPriority;
       appointment_status: AppointmentStatus;
+      entity_type: EntityType;
+      filing_status: FilingStatus;
+      accounting_method: AccountingMethod;
+      mileage_method: MileageMethod;
+      asset_category: AssetCategory;
     };
   };
 }
