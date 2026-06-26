@@ -70,10 +70,21 @@ const config: Config = {
       fontFamily: {
         sans: ["var(--font-sans)", "system-ui", "sans-serif"],
         display: ["var(--font-display)", "var(--font-sans)", "sans-serif"],
+        script: ["var(--font-script)", "cursive"],
       },
       boxShadow: {
-        card: "0 1px 2px rgba(33, 29, 24, 0.06), 0 1px 3px rgba(33, 29, 24, 0.05)",
-        lift: "0 8px 24px -8px rgba(33, 29, 24, 0.18)",
+        card: "0 1px 2px rgba(33, 29, 24, 0.04), 0 4px 12px -4px rgba(33, 29, 24, 0.08)",
+        lift: "0 12px 32px -10px rgba(33, 29, 24, 0.22), 0 4px 10px -6px rgba(33, 29, 24, 0.12)",
+        glow: "0 0 0 1px rgba(196, 85, 47, 0.12), 0 8px 28px -8px rgba(196, 85, 47, 0.30)",
+        inset: "inset 0 1px 0 0 rgba(255, 255, 255, 0.6)",
+      },
+      backgroundImage: {
+        "mesh-warm":
+          "radial-gradient(at 0% 0%, rgba(221, 166, 59, 0.10) 0px, transparent 50%), radial-gradient(at 98% 2%, rgba(196, 85, 47, 0.08) 0px, transparent 45%), radial-gradient(at 50% 100%, rgba(132, 122, 106, 0.06) 0px, transparent 55%)",
+        "brand-sheen":
+          "linear-gradient(135deg, #a8421e 0%, #c4552f 45%, #ce8f22 130%)",
+        "dark-sheen":
+          "linear-gradient(180deg, #211d18 0%, #14110e 100%)",
       },
       keyframes: {
         rise: {
