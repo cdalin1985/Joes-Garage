@@ -65,7 +65,7 @@ export function Topbar({
   const mobileLinks = MOBILE_LINKS.filter((l) => !l.admin || isAdmin);
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-slate-200 bg-white/90 px-4 backdrop-blur lg:px-6">
+    <header className="glass sticky top-0 z-30 flex h-16 items-center gap-3 border-x-0 border-t-0 border-b border-slate-200/70 px-4 lg:px-6">
       {/* Mobile menu toggle */}
       <button
         className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 lg:hidden"
@@ -84,7 +84,7 @@ export function Topbar({
         <input
           name="q"
           placeholder="Search customers…"
-          className="w-full rounded-full border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-sm text-slate-700 transition focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+          className="w-full rounded-full border border-slate-200/80 bg-white/60 py-2 pl-9 pr-3 text-sm text-slate-700 shadow-sm transition focus:border-brand-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20"
         />
       </form>
 
@@ -114,7 +114,7 @@ export function Topbar({
                       onClick={() => setMenu(null)}
                       className="flex items-center gap-3 px-3 py-2 text-sm text-slate-700 transition hover:bg-accent-50"
                     >
-                      <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-brand-600">
+                      <span className="icon-chip h-7 w-7">
                         <Icon className="h-4 w-4" />
                       </span>
                       {q.label}
@@ -136,7 +136,7 @@ export function Topbar({
           <p className="text-sm font-semibold leading-tight text-slate-700">{name}</p>
           <p className="text-xs leading-tight text-slate-400">{ROLE_LABELS[role]}</p>
         </div>
-        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-100 font-display text-sm font-bold text-brand-700">
+        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-brand-700 font-display text-sm font-bold text-white shadow-sm ring-1 ring-brand-300/40">
           {initials(name)}
         </div>
         <button onClick={signOut} className="btn-ghost p-2" title="Sign out">

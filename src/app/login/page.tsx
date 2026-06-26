@@ -21,7 +21,7 @@ function LoginInner() {
 
   if (!isSupabaseConfigured()) {
     return (
-      <div className="card card-pad text-center">
+      <div className="card-pad text-center">
         <p className="text-slate-700">This app isn&apos;t connected to a database yet.</p>
         <Link href="/setup" className="btn-primary mt-4">
           View setup instructions
@@ -69,12 +69,12 @@ function LoginInner() {
   }
 
   return (
-    <div className="card card-pad">
-      <div className="mb-6 flex gap-1 rounded-lg bg-slate-100 p-1 text-sm">
+    <div className="card-pad">
+      <div className="mb-6 flex gap-1 rounded-xl bg-slate-100 p-1 text-sm">
         <button
           type="button"
           onClick={() => setMode("signin")}
-          className={`flex-1 rounded-md py-1.5 font-medium ${
+          className={`flex-1 rounded-lg py-2 font-semibold transition-colors ${
             mode === "signin" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500"
           }`}
         >
@@ -83,7 +83,7 @@ function LoginInner() {
         <button
           type="button"
           onClick={() => setMode("signup")}
-          className={`flex-1 rounded-md py-1.5 font-medium ${
+          className={`flex-1 rounded-lg py-2 font-semibold transition-colors ${
             mode === "signup" ? "bg-white text-slate-900 shadow-sm" : "text-slate-500"
           }`}
         >
@@ -147,18 +147,28 @@ function LoginInner() {
 
 export default function LoginPage() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-900 to-brand-950 px-6 py-12">
-      <div className="w-full max-w-sm">
-        <div className="mb-6 text-center">
-          <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-2xl bg-accent-500 font-display text-2xl font-black text-slate-900 shadow-lg ring-1 ring-accent-300/50">
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-slate-900 via-slate-950 to-brand-950 px-6 py-12">
+      {/* Ambient floating glow orbs */}
+      <div className="pointer-events-none absolute -left-24 top-1/4 h-72 w-72 rounded-full bg-brand-500/25 blur-3xl" />
+      <div className="pointer-events-none absolute -right-20 bottom-10 h-80 w-80 rounded-full bg-accent-500/20 blur-3xl" />
+      <div className="pointer-events-none absolute left-1/2 top-0 h-64 w-64 -translate-x-1/2 rounded-full bg-brand-400/10 blur-3xl" />
+
+      <div className="relative w-full max-w-sm animate-rise">
+        <div className="mb-7 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-300 to-accent-500 font-display text-2xl font-black text-slate-900 shadow-[0_8px_30px_-6px_rgba(221,166,59,0.5)] ring-1 ring-accent-200/50">
             JG
           </div>
-          <h1 className="font-display text-2xl font-bold tracking-tight text-white">Joe&apos;s Garage</h1>
-          <p className="text-sm text-slate-300">Shop Management</p>
+          <h1 className="font-display text-3xl font-bold tracking-tight text-white">Joe&apos;s Garage</h1>
+          <p className="mt-1 text-sm text-slate-400">Shop Management Platform</p>
         </div>
-        <Suspense fallback={<div className="card card-pad text-center text-slate-500">Loading…</div>}>
-          <LoginInner />
-        </Suspense>
+        <div className="rounded-2xl border border-white/10 bg-white/95 p-1 shadow-2xl backdrop-blur-xl">
+          <Suspense fallback={<div className="card-pad text-center text-slate-500">Loading…</div>}>
+            <LoginInner />
+          </Suspense>
+        </div>
+        <p className="mt-6 text-center text-xs text-slate-500">
+          © {new Date().getFullYear()} Joe&apos;s Garage · Shop OS
+        </p>
       </div>
     </main>
   );

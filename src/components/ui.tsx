@@ -36,11 +36,14 @@ export function PageHeader({
     <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
       <div>
         {backHref && (
-          <Link href={backHref} className="mb-1 inline-block text-sm text-brand-600 hover:underline">
-            ← Back
+          <Link
+            href={backHref}
+            className="mb-1.5 inline-flex items-center gap-1 text-sm font-medium text-brand-600 transition-colors hover:text-brand-700"
+          >
+            <span aria-hidden>←</span> Back
           </Link>
         )}
-        <h1 className="text-2xl font-bold text-slate-900">{title}</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-[1.75rem]">{title}</h1>
         {subtitle && <p className="mt-1 text-sm text-slate-500">{subtitle}</p>}
       </div>
       {actions && <div className="flex items-center gap-2">{actions}</div>}
@@ -67,7 +70,7 @@ export function EmptyState({
   action?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-white px-6 py-14 text-center">
+    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white/60 px-6 py-14 text-center">
       <p className="text-base font-medium text-slate-700">{title}</p>
       {description && <p className="mt-1 max-w-sm text-sm text-slate-500">{description}</p>}
       {action && <div className="mt-4">{action}</div>}
@@ -80,11 +83,13 @@ export function Stat({
   value,
   hint,
   tone = "slate",
+  icon,
 }: {
   label: string;
   value: ReactNode;
   hint?: ReactNode;
   tone?: "slate" | "green" | "amber" | "red" | "blue";
+  icon?: ReactNode;
 }) {
   const toneClass = {
     slate: "text-slate-900",
@@ -93,11 +98,47 @@ export function Stat({
     red: "text-red-600",
     blue: "text-brand-600",
   }[tone];
+  const iconChip = {
+    slate: "bg-slate-100 text-slate-500 ring-slate-200",
+    green: "bg-emerald-50 text-emerald-600 ring-emerald-100",
+    amber: "bg-accent-50 text-accent-600 ring-accent-100",
+    red: "bg-red-50 text-red-600 ring-red-100",
+    blue: "bg-brand-50 text-brand-600 ring-brand-100",
+  }[tone];
+  const accentBar = {
+    slate: "from-slate-300/0 via-slate-300 to-slate-300/0",
+    green: "from-emerald-400/0 via-emerald-400 to-emerald-400/0",
+    amber: "from-accent-400/0 via-accent-400 to-accent-400/0",
+    red: "from-red-400/0 via-red-400 to-red-400/0",
+    blue: "from-brand-400/0 via-brand-500 to-brand-400/0",
+  }[tone];
   return (
-    <Card className="card-hover">
-      <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">{label}</p>
-      <p className={clsx("mt-2 font-display text-2xl font-bold tabular-nums", toneClass)}>{value}</p>
-      {hint && <p className="mt-1 text-xs text-slate-400">{hint}</p>}
+    <Card className="card-hover group relative overflow-hidden">
+      <span
+        className={clsx(
+          "absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r opacity-70 transition-opacity group-hover:opacity-100",
+          accentBar,
+        )}
+      />
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">{label}</p>
+          <p className={clsx("mt-2 font-display text-[1.7rem] font-bold leading-tight tabular-nums", toneClass)}>
+            {value}
+          </p>
+          {hint && <p className="mt-1 text-xs text-slate-400">{hint}</p>}
+        </div>
+        {icon && (
+          <span
+            className={clsx(
+              "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ring-1 ring-inset transition-transform duration-200 group-hover:scale-110",
+              iconChip,
+            )}
+          >
+            {icon}
+          </span>
+        )}
+      </div>
     </Card>
   );
 }
