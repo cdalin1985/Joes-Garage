@@ -155,7 +155,7 @@ export default function LoginPage() {
 
       <div className="relative w-full max-w-sm animate-rise">
         <div className="mb-7 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-300 to-accent-500 font-display text-2xl font-black text-slate-900 shadow-[0_8px_30px_-6px_rgba(221,166,59,0.5)] ring-1 ring-accent-200/50">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-300 to-accent-500 font-display text-2xl font-bold tracking-tight text-slate-900 shadow-[0_8px_30px_-6px_rgba(221,166,59,0.5)] ring-1 ring-accent-200/50">
             JG
           </div>
           <h1 className="font-display text-3xl font-bold tracking-tight text-white">Joe&apos;s Garage</h1>

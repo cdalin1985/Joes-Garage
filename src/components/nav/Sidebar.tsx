@@ -96,7 +96,7 @@ export function Sidebar({ isAdmin, shopName }: { isAdmin: boolean; shopName: str
       {/* faint ochre glow at the top for depth */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-accent-500/10 to-transparent" />
       <Link href="/dashboard" className="relative mb-7 flex items-center gap-2.5 px-2">
-        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-accent-300 to-accent-500 font-display text-base font-black text-slate-900 shadow-lg ring-1 ring-accent-200/40">
+        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-accent-300 to-accent-500 font-display text-base font-bold tracking-tight text-slate-900 shadow-lg ring-1 ring-accent-200/40">
           JG
         </span>
         <span className="truncate font-display text-lg font-bold tracking-tight text-white">
