@@ -11,7 +11,8 @@ small team** with role-based access.
 > 👉 **Owner / Admin handing the shop over to this app?** Start with the
 > [Owner & Admin Setup and Migration Guide](docs/ONBOARDING.md) — a
 > non-technical, step-by-step checklist for going live and moving off
-> NAPA TRACS + QuickBooks + Accounting Link.
+> NAPA TRACS + QuickBooks + Accounting Link. For a print-and-check-off
+> version to keep at the desk, see the [Quick Start](docs/QUICKSTART.md).
 
 ---
 
