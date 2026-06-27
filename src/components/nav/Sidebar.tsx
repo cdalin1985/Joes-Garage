@@ -32,6 +32,7 @@ const CRM: NavItem[] = [
   { href: "/customers", label: "Customers", icon: IconUsers },
   { href: "/vehicles", label: "Vehicles", icon: IconCar },
   { href: "/parts", label: "Parts & Inventory", icon: IconPackage },
+  { href: "/labor-presets", label: "Labor Rate Book", icon: IconWrench },
 ];
 
 const ADMIN: NavItem[] = [

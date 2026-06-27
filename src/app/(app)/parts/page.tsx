@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader, DataTable, EmptyState, Badge, Stat } from "@/components/ui";
-import { IconPlus, IconAlert } from "@/components/icons";
+import { IconPlus, IconAlert, IconPackage } from "@/components/icons";
 import { formatCurrency } from "@/lib/format";
 import type { Part } from "@/lib/database.types";
 
@@ -30,9 +30,14 @@ export default async function PartsPage({ searchParams }: { searchParams: { q?: 
         title="Parts & Inventory"
         subtitle="Your catalog of parts and shop materials"
         actions={
-          <Link href="/parts/new" className="btn-primary">
-            <IconPlus className="h-4 w-4" /> New part
-          </Link>
+          <>
+            <Link href="/parts/purchase-orders" className="btn-secondary">
+              <IconPackage className="h-4 w-4" /> Purchase orders
+            </Link>
+            <Link href="/parts/new" className="btn-primary">
+              <IconPlus className="h-4 w-4" /> New part
+            </Link>
+          </>
         }
       />
 

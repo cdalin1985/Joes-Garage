@@ -1,12 +1,15 @@
 import type {
   AppointmentStatus,
   AssetCategory,
+  CommunicationType,
   EntityType,
   EstimateStatus,
   FilingStatus,
+  InspectionRating,
   InvoiceStatus,
   LineItemType,
   PaymentMethod,
+  PurchaseOrderStatus,
   UserRole,
   WorkOrderPriority,
   WorkOrderStatus,
@@ -120,6 +123,28 @@ export const ASSET_CATEGORIES: Record<AssetCategory, { label: string; years: num
   building: { label: "Building", years: 39 },
   improvement: { label: "Leasehold improvement", years: 15 },
   other: { label: "Other", years: 7 },
+};
+
+export const INSPECTION_RATING: Record<InspectionRating, { label: string; tone: BadgeTone; dot: string }> = {
+  green: { label: "Good", tone: "green", dot: "bg-emerald-500" },
+  yellow: { label: "Needs attention soon", tone: "amber", dot: "bg-amber-500" },
+  red: { label: "Needs attention now", tone: "red", dot: "bg-red-500" },
+  na: { label: "Not inspected", tone: "gray", dot: "bg-slate-300" },
+};
+
+export const PURCHASE_ORDER_STATUS: Record<PurchaseOrderStatus, { label: string; tone: BadgeTone }> = {
+  draft: { label: "Draft", tone: "gray" },
+  ordered: { label: "Ordered", tone: "blue" },
+  partial: { label: "Partially received", tone: "amber" },
+  received: { label: "Received", tone: "green" },
+  cancelled: { label: "Cancelled", tone: "slate" },
+};
+
+export const COMMUNICATION_TYPES: Record<CommunicationType, string> = {
+  call: "Phone call",
+  text: "Text message",
+  email: "Email",
+  note: "Note",
 };
 
 export const WORK_ORDER_STATUS_FLOW: WorkOrderStatus[] = [

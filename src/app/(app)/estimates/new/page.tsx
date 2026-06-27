@@ -11,7 +11,7 @@ export default async function NewEstimatePage({
 }: {
   searchParams: { customer?: string; vehicle?: string };
 }) {
-  const { customers, vehicles, parts, settings } = await getEditorData();
+  const { customers, vehicles, parts, laborPresets, settings } = await getEditorData();
   const taxPct = (settings?.default_tax_rate ?? 0) * 100;
 
   return (
@@ -23,6 +23,7 @@ export default async function NewEstimatePage({
         customers={customers}
         vehicles={vehicles}
         parts={parts}
+        laborPresets={laborPresets}
         laborRate={settings?.default_labor_rate ?? 120}
         cancelHref="/estimates"
         defaults={{

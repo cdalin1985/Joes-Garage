@@ -18,7 +18,7 @@ export default async function EditEstimatePage({ params }: { params: { id: strin
   if (!data) notFound();
   const e = data as Estimate & { estimate_items: EstimateItem[] };
 
-  const { customers, vehicles, parts, settings } = await getEditorData();
+  const { customers, vehicles, parts, laborPresets, settings } = await getEditorData();
   const action = updateEstimate.bind(null, params.id);
 
   return (
@@ -30,6 +30,7 @@ export default async function EditEstimatePage({ params }: { params: { id: strin
         customers={customers}
         vehicles={vehicles}
         parts={parts}
+        laborPresets={laborPresets}
         laborRate={settings?.default_labor_rate ?? 120}
         cancelHref={`/estimates/${params.id}`}
         defaults={{

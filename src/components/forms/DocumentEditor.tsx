@@ -8,6 +8,7 @@ import { formatCurrency } from "@/lib/format";
 import { LINE_ITEM_TYPES } from "@/lib/constants";
 import type {
   Customer,
+  LaborPreset,
   Part,
   Vehicle,
   LineItemType,
@@ -56,6 +57,7 @@ export function DocumentEditor({
   customers,
   vehicles,
   parts,
+  laborPresets = [],
   laborRate,
   defaults,
   cancelHref,
@@ -65,6 +67,7 @@ export function DocumentEditor({
   customers: Customer[];
   vehicles: Vehicle[];
   parts: Part[];
+  laborPresets?: LaborPreset[];
   laborRate: number;
   defaults: DocumentDefaults;
   cancelHref: string;
@@ -102,6 +105,22 @@ export function DocumentEditor({
         quantity: presets[type].quantity ?? 1,
         unit_price: presets[type].unit_price ?? 0,
         taxable: presets[type].taxable ?? true,
+        part_id: null,
+      },
+    ]);
+  }
+
+  function addPreset(presetId: string) {
+    const preset = laborPresets.find((x) => x.id === presetId);
+    if (!preset) return;
+    setItems((prev) => [
+      ...prev,
+      {
+        item_type: "labor",
+        description: preset.name,
+        quantity: preset.default_hours,
+        unit_price: preset.default_rate ?? laborRate,
+        taxable: false,
         part_id: null,
       },
     ]);
@@ -313,9 +332,26 @@ export function DocumentEditor({
           <button type="button" onClick={() => addItem("discount")} className="btn-secondary !py-1 text-xs">
             <IconPlus className="h-3.5 w-3.5" /> Discount
           </button>
-          {parts.length > 0 && (
+          {laborPresets.length > 0 && (
             <select
               className="input !py-1 ml-auto max-w-[220px] text-xs"
+              value=""
+              onChange={(e) => {
+                if (e.target.value) addPreset(e.target.value);
+                e.target.value = "";
+              }}
+            >
+              <option value="">+ Add canned job…</option>
+              {laborPresets.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name} ({p.default_hours}h)
+                </option>
+              ))}
+            </select>
+          )}
+          {parts.length > 0 && (
+            <select
+              className="input !py-1 max-w-[220px] text-xs"
               value=""
               onChange={(e) => {
                 if (e.target.value) addPart(e.target.value);

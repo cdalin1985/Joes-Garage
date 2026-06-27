@@ -72,6 +72,11 @@ export type AssetCategory =
   | "building"
   | "improvement"
   | "other";
+export type InspectionStatus = "in_progress" | "completed";
+export type InspectionRating = "green" | "yellow" | "red" | "na";
+export type PurchaseOrderStatus = "draft" | "ordered" | "partial" | "received" | "cancelled";
+export type CommunicationType = "call" | "text" | "email" | "note";
+export type CommunicationDirection = "outbound" | "inbound";
 
 type Timestamps = { created_at: string; updated_at: string };
 
@@ -413,6 +418,75 @@ export interface AssetPurchase extends Timestamps {
   created_by: string | null;
 }
 
+export interface Inspection extends Timestamps {
+  id: string;
+  work_order_id: string;
+  vehicle_id: string | null;
+  status: InspectionStatus;
+  share_token: string;
+  performed_by: string | null;
+  notes: string | null;
+}
+
+export interface InspectionItem {
+  id: string;
+  inspection_id: string;
+  category: string;
+  label: string;
+  rating: InspectionRating;
+  notes: string | null;
+  photo_url: string | null;
+  sort_order: number;
+  created_at: string;
+}
+
+export interface PurchaseOrder extends Timestamps {
+  id: string;
+  number: string | null;
+  vendor_id: string | null;
+  status: PurchaseOrderStatus;
+  ordered_at: string | null;
+  expected_at: string | null;
+  received_at: string | null;
+  notes: string | null;
+  created_by: string | null;
+}
+
+export interface PurchaseOrderItem {
+  id: string;
+  purchase_order_id: string;
+  part_id: string | null;
+  description: string;
+  quantity_ordered: number;
+  quantity_received: number;
+  unit_cost: number;
+  line_total: number;
+  sort_order: number;
+  created_at: string;
+}
+
+export interface LaborPreset extends Timestamps {
+  id: string;
+  name: string;
+  category: string | null;
+  default_hours: number;
+  default_rate: number | null;
+  notes: string | null;
+  is_active: boolean;
+}
+
+export interface CustomerCommunication {
+  id: string;
+  customer_id: string;
+  work_order_id: string | null;
+  appointment_id: string | null;
+  type: CommunicationType;
+  direction: CommunicationDirection;
+  summary: string;
+  logged_by: string | null;
+  created_at: string;
+}
+
 // Generic table mapping for the Supabase generic client.
 type Row<T> = T;
 type Insert<T> = Partial<T>;
@@ -442,6 +516,12 @@ export interface Database {
       estimated_tax_payments: TableDef<EstimatedTaxPayment>;
       mileage_logs: TableDef<MileageLog>;
       asset_purchases: TableDef<AssetPurchase>;
+      inspections: TableDef<Inspection>;
+      inspection_items: TableDef<InspectionItem>;
+      purchase_orders: TableDef<PurchaseOrder>;
+      purchase_order_items: TableDef<PurchaseOrderItem>;
+      labor_presets: TableDef<LaborPreset>;
+      customer_communications: TableDef<CustomerCommunication>;
     };
     Views: {
       [key: string]: { Row: Record<string, unknown> };
@@ -461,6 +541,11 @@ export interface Database {
       accounting_method: AccountingMethod;
       mileage_method: MileageMethod;
       asset_category: AssetCategory;
+      inspection_status: InspectionStatus;
+      inspection_rating: InspectionRating;
+      purchase_order_status: PurchaseOrderStatus;
+      communication_type: CommunicationType;
+      communication_direction: CommunicationDirection;
     };
   };
 }

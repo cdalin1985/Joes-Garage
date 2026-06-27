@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader, Card, Badge, Alert, SectionTitle } from "@/components/ui";
@@ -23,7 +24,15 @@ export default async function StaffPage() {
 
   return (
     <div>
-      <PageHeader title="Staff" subtitle="Manage who can access the shop system" />
+      <PageHeader
+        title="Staff"
+        subtitle="Manage who can access the shop system"
+        actions={
+          <Link href="/staff/performance" className="btn-secondary">
+            Tech performance
+          </Link>
+        }
+      />
 
       <div className="mb-5">
         <Alert tone="blue" title="Adding a team member">
