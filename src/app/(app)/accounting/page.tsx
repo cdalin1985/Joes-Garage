@@ -44,6 +44,9 @@ export default async function AccountingPage({ searchParams }: { searchParams: {
             <Link href="/accounting/reports" className="btn-secondary">
               Reports &amp; Tax
             </Link>
+            <Link href="/accounting/tax" className="btn-secondary">
+              Tax Center
+            </Link>
             <Link href="/accounting/new" className="btn-primary">
               <IconPlus className="h-4 w-4" /> Add expense
             </Link>

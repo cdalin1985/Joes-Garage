@@ -18,7 +18,7 @@ export default async function EditInvoicePage({ params }: { params: { id: string
   if (!data) notFound();
   const inv = data as Invoice & { invoice_items: InvoiceItem[] };
 
-  const { customers, vehicles, parts, settings } = await getEditorData();
+  const { customers, vehicles, parts, laborPresets, settings } = await getEditorData();
   const action = updateInvoice.bind(null, params.id);
 
   return (
@@ -30,6 +30,7 @@ export default async function EditInvoicePage({ params }: { params: { id: string
         customers={customers}
         vehicles={vehicles}
         parts={parts}
+        laborPresets={laborPresets}
         laborRate={settings?.default_labor_rate ?? 120}
         cancelHref={`/invoices/${params.id}`}
         defaults={{

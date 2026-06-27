@@ -1211,3 +1211,502 @@ create policy expenses_admin_all on public.expenses
   for all to authenticated
   using (public.is_admin()) with check (public.is_admin());
 
+
+
+-- ===========================================================================
+-- Tax Center (mirrors migration 0010_tax_center.sql)
+-- ===========================================================================
+-- ---------------------------------------------------------------------------
+-- Enums
+-- ---------------------------------------------------------------------------
+do $$ begin
+  create type public.entity_type as enum (
+    'sole_prop', 'single_llc', 'partnership', 'multi_llc', 's_corp', 'c_corp'
+  );
+exception when duplicate_object then null; end $$;
+
+do $$ begin
+  create type public.filing_status as enum (
+    'single', 'mfj', 'mfs', 'hoh', 'qw'
+  );
+exception when duplicate_object then null; end $$;
+
+do $$ begin
+  create type public.accounting_method as enum ('cash', 'accrual');
+exception when duplicate_object then null; end $$;
+
+do $$ begin
+  create type public.mileage_method as enum ('standard', 'actual');
+exception when duplicate_object then null; end $$;
+
+do $$ begin
+  create type public.asset_category as enum (
+    'vehicle', 'machinery', 'tools', 'computers', 'furniture', 'building', 'improvement', 'other'
+  );
+exception when duplicate_object then null; end $$;
+
+-- ---------------------------------------------------------------------------
+-- Business + tax profile (singleton, row id = 1)
+-- This is the over-collected "everything an accountant would ask you" record.
+-- ---------------------------------------------------------------------------
+create table if not exists public.tax_profile (
+  id                       integer primary key default 1,
+
+  -- Entity & identity
+  entity_type              public.entity_type not null default 'sole_prop',
+  legal_business_name      text,
+  dba_name                 text,
+  ein                      text,                 -- federal employer id
+  owner_ssn_last4          text,                 -- only last 4 stored, for reference
+  naics_code               text default '811111',-- "General Automotive Repair"
+  business_description      text default 'Automotive repair and maintenance',
+  business_start_date      date,
+  state_of_operation       text,
+  state_tax_id             text,
+  state_unemployment_id    text,
+
+  -- How the books are kept
+  accounting_method        public.accounting_method not null default 'cash',
+  first_year_filing        boolean not null default false,
+  materially_participates  boolean not null default true,
+  has_employees            boolean not null default false,
+  files_1099               boolean not null default false,
+  made_payments_req_1099   boolean,              -- Sch C question I, line for 1099s
+
+  -- Owner / household (drives the income-tax estimate)
+  owner_full_name          text,
+  filing_status            public.filing_status not null default 'single',
+  spouse_name              text,
+  spouse_w2_income         numeric(12,2) not null default 0,
+  other_household_income   numeric(12,2) not null default 0,
+  dependents               integer not null default 0,
+  prior_year_agi           numeric(12,2) not null default 0,
+  prior_year_total_tax     numeric(12,2) not null default 0,
+  est_other_deductions     numeric(12,2) not null default 0, -- above standard, if itemizing
+  use_itemized             boolean not null default false,
+  itemized_deductions      numeric(12,2) not null default 0,
+
+  -- Self-employed perks the owner usually forgets
+  sep_simple_401k_contrib  numeric(12,2) not null default 0,  -- retirement
+  health_insurance_premium numeric(12,2) not null default 0,  -- SE health-ins deduction
+  hsa_contribution         numeric(12,2) not null default 0,
+
+  -- Home office (simplified method by default)
+  has_home_office          boolean not null default false,
+  home_office_sqft         integer not null default 0,
+  home_total_sqft          integer not null default 0,
+  home_office_use_simplified boolean not null default true,
+  home_rent_mortgage_year  numeric(12,2) not null default 0,
+  home_utilities_year      numeric(12,2) not null default 0,
+  home_insurance_year      numeric(12,2) not null default 0,
+  home_repairs_year        numeric(12,2) not null default 0,
+
+  -- Business vehicle (if a single shop vehicle is tracked here)
+  vehicle_description      text,
+  vehicle_in_service_date  date,
+  vehicle_method           public.mileage_method not null default 'standard',
+  vehicle_total_miles      integer not null default 0,
+  vehicle_commute_miles    integer not null default 0,
+  vehicle_actual_expenses  numeric(12,2) not null default 0,
+  vehicle_has_another      boolean not null default true,
+
+  -- Estimated-tax preferences
+  pay_state_estimates      boolean not null default false,
+  state_tax_rate           numeric(6,4) not null default 0.0000, -- e.g. 0.05 = 5%
+  safe_harbor_target       integer not null default 100,         -- 90, 100, or 110 (%)
+
+  notes                    text,
+  created_at               timestamptz not null default now(),
+  updated_at               timestamptz not null default now(),
+  constraint tax_profile_singleton check (id = 1)
+);
+
+insert into public.tax_profile (id) values (1) on conflict do nothing;
+
+drop trigger if exists trg_tax_profile_updated_at on public.tax_profile;
+create trigger trg_tax_profile_updated_at
+  before update on public.tax_profile
+  for each row execute function public.set_updated_at();
+
+-- ---------------------------------------------------------------------------
+-- Quarterly estimated tax payments (Form 1040-ES + state)
+-- ---------------------------------------------------------------------------
+create table if not exists public.estimated_tax_payments (
+  id            uuid primary key default gen_random_uuid(),
+  tax_year      integer not null,
+  quarter       integer not null check (quarter between 1 and 4),
+  jurisdiction  text not null default 'federal',  -- 'federal' | 'state'
+  amount        numeric(12,2) not null default 0,
+  paid_date     date,
+  confirmation  text,
+  notes         text,
+  created_by    uuid references public.profiles(id) on delete set null,
+  created_at    timestamptz not null default now(),
+  updated_at    timestamptz not null default now()
+);
+create index if not exists idx_est_pay_year on public.estimated_tax_payments (tax_year);
+
+drop trigger if exists trg_est_pay_updated_at on public.estimated_tax_payments;
+create trigger trg_est_pay_updated_at
+  before update on public.estimated_tax_payments
+  for each row execute function public.set_updated_at();
+
+-- ---------------------------------------------------------------------------
+-- Mileage log (business miles, standard-rate deduction)
+-- ---------------------------------------------------------------------------
+create table if not exists public.mileage_logs (
+  id            uuid primary key default gen_random_uuid(),
+  trip_date     date not null default current_date,
+  miles         numeric(10,1) not null default 0,
+  purpose       text,
+  from_location text,
+  to_location   text,
+  odometer_start numeric(12,1),
+  odometer_end   numeric(12,1),
+  work_order_id uuid references public.work_orders(id) on delete set null,
+  created_by    uuid references public.profiles(id) on delete set null,
+  created_at    timestamptz not null default now(),
+  updated_at    timestamptz not null default now()
+);
+create index if not exists idx_mileage_date on public.mileage_logs (trip_date);
+
+drop trigger if exists trg_mileage_updated_at on public.mileage_logs;
+create trigger trg_mileage_updated_at
+  before update on public.mileage_logs
+  for each row execute function public.set_updated_at();
+
+-- ---------------------------------------------------------------------------
+-- Capital asset purchases (depreciation / Section 179 / bonus)
+-- ---------------------------------------------------------------------------
+create table if not exists public.asset_purchases (
+  id                uuid primary key default gen_random_uuid(),
+  description       text not null,
+  category          public.asset_category not null default 'tools',
+  vendor_name       text,
+  purchase_date     date not null default current_date,
+  cost              numeric(12,2) not null default 0,
+  business_use_pct  numeric(5,2) not null default 100,
+  recovery_years    integer not null default 7,        -- MACRS class life
+  section_179       boolean not null default false,     -- expense fully this year
+  bonus_depreciation boolean not null default false,
+  disposed_date     date,
+  notes             text,
+  created_by        uuid references public.profiles(id) on delete set null,
+  created_at        timestamptz not null default now(),
+  updated_at        timestamptz not null default now()
+);
+create index if not exists idx_assets_date on public.asset_purchases (purchase_date);
+
+drop trigger if exists trg_assets_updated_at on public.asset_purchases;
+create trigger trg_assets_updated_at
+  before update on public.asset_purchases
+  for each row execute function public.set_updated_at();
+
+-- ---------------------------------------------------------------------------
+-- 1099 fields on vendors (so we can produce 1099-NEC at year end)
+-- ---------------------------------------------------------------------------
+alter table public.vendors add column if not exists is_1099 boolean not null default false;
+alter table public.vendors add column if not exists tax_id text;            -- EIN or SSN
+alter table public.vendors add column if not exists tax_id_type text;       -- 'ein' | 'ssn'
+alter table public.vendors add column if not exists legal_name text;        -- name on the W-9
+alter table public.vendors add column if not exists w9_on_file boolean not null default false;
+
+-- ---------------------------------------------------------------------------
+-- RLS: all of this is financial — owner/admin only.
+-- ---------------------------------------------------------------------------
+alter table public.tax_profile            enable row level security;
+alter table public.estimated_tax_payments enable row level security;
+alter table public.mileage_logs           enable row level security;
+alter table public.asset_purchases        enable row level security;
+
+do $$
+declare
+  t text;
+  fin_tables text[] := array[
+    'tax_profile', 'estimated_tax_payments', 'mileage_logs', 'asset_purchases'
+  ];
+begin
+  foreach t in array fin_tables loop
+    execute format('drop policy if exists %I on public.%I', 'admin_all_' || t, t);
+    execute format(
+      'create policy %I on public.%I for all to authenticated using (public.is_admin()) with check (public.is_admin())',
+      'admin_all_' || t, t
+    );
+  end loop;
+end $$;
+
+-- ===========================================================================
+-- Shop Management (mirrors migration 0011_shop_management.sql)
+-- ===========================================================================
+
+-- ===========================================================================
+
+-- ---------------------------------------------------------------------------
+-- Digital vehicle inspections
+-- ---------------------------------------------------------------------------
+do $$ begin
+  create type public.inspection_status as enum ('in_progress', 'completed');
+exception when duplicate_object then null; end $$;
+
+do $$ begin
+  create type public.inspection_rating as enum ('green', 'yellow', 'red', 'na');
+exception when duplicate_object then null; end $$;
+
+create table if not exists public.inspections (
+  id            uuid primary key default gen_random_uuid(),
+  work_order_id uuid not null references public.work_orders(id) on delete cascade,
+  vehicle_id    uuid references public.vehicles(id) on delete set null,
+  status        public.inspection_status not null default 'in_progress',
+  share_token   uuid not null default gen_random_uuid(),
+  performed_by  uuid references public.profiles(id) on delete set null,
+  notes         text,
+  created_at    timestamptz not null default now(),
+  updated_at    timestamptz not null default now()
+);
+create unique index if not exists idx_inspections_share_token on public.inspections (share_token);
+create index if not exists idx_inspections_work_order on public.inspections (work_order_id);
+
+drop trigger if exists trg_inspections_updated_at on public.inspections;
+create trigger trg_inspections_updated_at
+  before update on public.inspections
+  for each row execute function public.set_updated_at();
+
+create table if not exists public.inspection_items (
+  id             uuid primary key default gen_random_uuid(),
+  inspection_id  uuid not null references public.inspections(id) on delete cascade,
+  category       text not null default 'General',
+  label          text not null,
+  rating         public.inspection_rating not null default 'na',
+  notes          text,
+  photo_url      text,
+  sort_order     integer not null default 0,
+  created_at     timestamptz not null default now()
+);
+create index if not exists idx_inspection_items_inspection on public.inspection_items (inspection_id);
+
+-- Security-definer lookup so a customer holding the share link (no login)
+-- can view their own inspection without granting anon broad table access.
+create or replace function public.get_inspection_by_token(p_token uuid)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = public
+as $$
+declare
+  result jsonb;
+begin
+  select jsonb_build_object(
+    'id', i.id,
+    'status', i.status,
+    'notes', i.notes,
+    'created_at', i.created_at,
+    'updated_at', i.updated_at,
+    'work_order_number', wo.number,
+    'technician', p.full_name,
+    'vehicle', jsonb_build_object(
+      'year', v.year, 'make', v.make, 'model', v.model, 'trim', v.trim, 'vin', v.vin
+    ),
+    'items', coalesce((
+      select jsonb_agg(jsonb_build_object(
+        'category', ii.category,
+        'label', ii.label,
+        'rating', ii.rating,
+        'notes', ii.notes,
+        'photo_url', ii.photo_url,
+        'sort_order', ii.sort_order
+      ) order by ii.sort_order)
+      from public.inspection_items ii where ii.inspection_id = i.id
+    ), '[]'::jsonb)
+  )
+  into result
+  from public.inspections i
+  left join public.work_orders wo on wo.id = i.work_order_id
+  left join public.vehicles v on v.id = i.vehicle_id
+  left join public.profiles p on p.id = i.performed_by
+  where i.share_token = p_token;
+
+  return result;
+end;
+$$;
+
+grant execute on function public.get_inspection_by_token(uuid) to anon, authenticated;
+
+-- Photo storage for inspections (public bucket; only staff can write).
+insert into storage.buckets (id, name, public)
+values ('inspection-photos', 'inspection-photos', true)
+on conflict (id) do nothing;
+
+drop policy if exists "inspection_photos_public_read" on storage.objects;
+create policy "inspection_photos_public_read" on storage.objects
+  for select using (bucket_id = 'inspection-photos');
+
+drop policy if exists "inspection_photos_staff_write" on storage.objects;
+create policy "inspection_photos_staff_write" on storage.objects
+  for insert to authenticated with check (bucket_id = 'inspection-photos' and public.is_staff());
+
+drop policy if exists "inspection_photos_staff_update" on storage.objects;
+create policy "inspection_photos_staff_update" on storage.objects
+  for update to authenticated using (bucket_id = 'inspection-photos' and public.is_staff());
+
+drop policy if exists "inspection_photos_staff_delete" on storage.objects;
+create policy "inspection_photos_staff_delete" on storage.objects
+  for delete to authenticated using (bucket_id = 'inspection-photos' and public.is_staff());
+
+-- ---------------------------------------------------------------------------
+-- Purchase orders (vendor parts ordering)
+-- ---------------------------------------------------------------------------
+do $$ begin
+  create type public.purchase_order_status as enum ('draft', 'ordered', 'partial', 'received', 'cancelled');
+exception when duplicate_object then null; end $$;
+
+create sequence if not exists public.purchase_order_number_seq start 1001;
+
+create table if not exists public.purchase_orders (
+  id            uuid primary key default gen_random_uuid(),
+  number        text unique,
+  vendor_id     uuid references public.vendors(id) on delete set null,
+  status        public.purchase_order_status not null default 'draft',
+  ordered_at    timestamptz,
+  expected_at   timestamptz,
+  received_at   timestamptz,
+  notes         text,
+  created_by    uuid references public.profiles(id) on delete set null,
+  created_at    timestamptz not null default now(),
+  updated_at    timestamptz not null default now()
+);
+create index if not exists idx_po_vendor on public.purchase_orders (vendor_id);
+create index if not exists idx_po_status on public.purchase_orders (status);
+
+drop trigger if exists trg_purchase_orders_updated_at on public.purchase_orders;
+create trigger trg_purchase_orders_updated_at
+  before update on public.purchase_orders
+  for each row execute function public.set_updated_at();
+
+create or replace function public.assign_po_number()
+returns trigger
+language plpgsql
+as $$
+begin
+  if new.number is null then
+    new.number := 'PO-' || nextval('public.purchase_order_number_seq');
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists trg_po_number on public.purchase_orders;
+create trigger trg_po_number
+  before insert on public.purchase_orders
+  for each row execute function public.assign_po_number();
+
+create table if not exists public.purchase_order_items (
+  id                uuid primary key default gen_random_uuid(),
+  purchase_order_id uuid not null references public.purchase_orders(id) on delete cascade,
+  part_id           uuid references public.parts(id) on delete set null,
+  description       text not null default '',
+  quantity_ordered  numeric(12, 2) not null default 1,
+  quantity_received numeric(12, 2) not null default 0,
+  unit_cost         numeric(12, 2) not null default 0,
+  line_total        numeric(12, 2) generated always as (round(quantity_ordered * unit_cost, 2)) stored,
+  sort_order        integer not null default 0,
+  created_at        timestamptz not null default now()
+);
+create index if not exists idx_po_items_po on public.purchase_order_items (purchase_order_id);
+
+-- Receiving a line bumps quantity_on_hand on the linked part automatically.
+create or replace function public.trg_po_item_received()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if new.part_id is not null and new.quantity_received is distinct from old.quantity_received then
+    update public.parts
+    set quantity_on_hand = quantity_on_hand + (new.quantity_received - old.quantity_received)
+    where id = new.part_id;
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists trg_po_items_received on public.purchase_order_items;
+create trigger trg_po_items_received
+  after update on public.purchase_order_items
+  for each row execute function public.trg_po_item_received();
+
+-- ---------------------------------------------------------------------------
+-- Labor rate book (canned jobs) — an in-house substitute for a paid
+-- flat-rate labor guide subscription. Owner/techs build their own library
+-- of standard jobs with proven labor times.
+-- ---------------------------------------------------------------------------
+create table if not exists public.labor_presets (
+  id            uuid primary key default gen_random_uuid(),
+  name          text not null,
+  category      text,
+  default_hours numeric(6, 2) not null default 1,
+  default_rate  numeric(12, 2),
+  notes         text,
+  is_active     boolean not null default true,
+  created_at    timestamptz not null default now(),
+  updated_at    timestamptz not null default now()
+);
+create index if not exists idx_labor_presets_category on public.labor_presets (category);
+
+drop trigger if exists trg_labor_presets_updated_at on public.labor_presets;
+create trigger trg_labor_presets_updated_at
+  before update on public.labor_presets
+  for each row execute function public.set_updated_at();
+
+-- ---------------------------------------------------------------------------
+-- Customer communications log (calls / texts / emails / notes)
+-- ---------------------------------------------------------------------------
+do $$ begin
+  create type public.communication_type as enum ('call', 'text', 'email', 'note');
+exception when duplicate_object then null; end $$;
+
+do $$ begin
+  create type public.communication_direction as enum ('outbound', 'inbound');
+exception when duplicate_object then null; end $$;
+
+create table if not exists public.customer_communications (
+  id            uuid primary key default gen_random_uuid(),
+  customer_id   uuid not null references public.customers(id) on delete cascade,
+  work_order_id uuid references public.work_orders(id) on delete set null,
+  appointment_id uuid references public.appointments(id) on delete set null,
+  type          public.communication_type not null default 'note',
+  direction     public.communication_direction not null default 'outbound',
+  summary       text not null,
+  logged_by     uuid references public.profiles(id) on delete set null,
+  created_at    timestamptz not null default now()
+);
+create index if not exists idx_comm_customer on public.customer_communications (customer_id);
+create index if not exists idx_comm_created on public.customer_communications (created_at desc);
+
+-- ---------------------------------------------------------------------------
+-- RLS
+-- ---------------------------------------------------------------------------
+alter table public.inspections             enable row level security;
+alter table public.inspection_items         enable row level security;
+alter table public.purchase_orders          enable row level security;
+alter table public.purchase_order_items     enable row level security;
+alter table public.labor_presets            enable row level security;
+alter table public.customer_communications  enable row level security;
+
+do $$
+declare
+  t text;
+  op_tables text[] := array[
+    'inspections', 'inspection_items', 'purchase_orders', 'purchase_order_items',
+    'labor_presets', 'customer_communications'
+  ];
+begin
+  foreach t in array op_tables loop
+    execute format('drop policy if exists %I on public.%I', 'staff_all_' || t, t);
+    execute format(
+      'create policy %I on public.%I for all to authenticated using (public.is_staff()) with check (public.is_staff())',
+      'staff_all_' || t, t
+    );
+  end loop;
+end $$;

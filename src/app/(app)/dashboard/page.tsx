@@ -78,7 +78,7 @@ export default async function DashboardPage() {
           <div className="relative flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent-300">{today}</p>
-              <h1 className="mt-0.5 font-script text-4xl font-bold leading-tight text-white sm:text-[2.75rem]">
+              <h1 className="mt-0.5 font-script text-5xl font-bold leading-tight text-white sm:text-6xl">
                 Welcome back{profile.full_name ? `, ${profile.full_name.split(" ")[0]}` : ""}
               </h1>
               <p className="mt-1 text-sm text-slate-300">Here&apos;s what&apos;s happening in the shop today</p>

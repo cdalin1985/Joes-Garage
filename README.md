@@ -8,6 +8,11 @@ small team** with role-based access.
 > Stack: **Next.js 14 (App Router) · TypeScript · Tailwind CSS · Supabase
 > (Postgres + Auth) · deployable to Vercel**
 
+> 👉 **Owner / Admin handing the shop over to this app?** Start with the
+> [Owner & Admin Setup and Migration Guide](docs/ONBOARDING.md) — a
+> non-technical, step-by-step checklist for going live and moving off
+> NAPA TRACS + QuickBooks + Accounting Link.
+
 ---
 
 ## What's inside

@@ -8,6 +8,7 @@ import {
   deleteWorkOrder,
   invoiceWorkOrder,
 } from "@/lib/actions/work-orders";
+import { createInspection } from "@/lib/actions/inspections";
 import { customerName, vehicleName } from "@/lib/display";
 import { formatCurrency, formatDate } from "@/lib/format";
 import {
@@ -18,6 +19,7 @@ import {
 } from "@/lib/constants";
 import type {
   Customer,
+  Inspection,
   Invoice,
   Profile,
   Vehicle,
@@ -48,6 +50,13 @@ export default async function WorkOrderDetailPage({ params }: { params: { id: st
   };
   const items = (w.work_order_items ?? []).sort((a, b) => a.sort_order - b.sort_order);
   const subtotal = items.reduce((s, i) => s + i.line_total, 0);
+
+  const { data: inspectionData } = await supabase
+    .from("inspections")
+    .select("*")
+    .eq("work_order_id", id)
+    .order("created_at", { ascending: false });
+  const inspections = (inspectionData as Inspection[]) ?? [];
 
   return (
     <div>
@@ -129,6 +138,42 @@ export default async function WorkOrderDetailPage({ params }: { params: { id: st
               <p className="whitespace-pre-wrap text-sm text-slate-600">{w.notes}</p>
             </Card>
           )}
+
+          <Card>
+            <SectionTitle
+              action={
+                <form action={createInspection.bind(null, id, w.vehicle_id)}>
+                  <button className="btn-secondary !py-1.5 text-xs">+ New inspection</button>
+                </form>
+              }
+            >
+              Digital vehicle inspections
+            </SectionTitle>
+            {inspections.length === 0 ? (
+              <p className="py-3 text-center text-sm text-slate-400">
+                No inspection started for this visit yet.
+              </p>
+            ) : (
+              <ul className="divide-y divide-slate-100">
+                {inspections.map((insp) => (
+                  <li key={insp.id} className="flex items-center justify-between py-2">
+                    <span className="text-sm text-slate-600">{formatDate(insp.created_at)}</span>
+                    <div className="flex items-center gap-2">
+                      <Badge tone={insp.status === "completed" ? "green" : "amber"}>
+                        {insp.status === "completed" ? "Completed" : "In progress"}
+                      </Badge>
+                      <Link
+                        href={`/work-orders/${id}/inspection/${insp.id}`}
+                        className="text-sm font-medium text-brand-700 hover:underline"
+                      >
+                        Open
+                      </Link>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Card>
         </div>
 
         <div className="space-y-5">

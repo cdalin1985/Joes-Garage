@@ -32,11 +32,13 @@ const CRM: NavItem[] = [
   { href: "/customers", label: "Customers", icon: IconUsers },
   { href: "/vehicles", label: "Vehicles", icon: IconCar },
   { href: "/parts", label: "Parts & Inventory", icon: IconPackage },
+  { href: "/labor-presets", label: "Labor Rate Book", icon: IconWrench },
 ];
 
 const ADMIN: NavItem[] = [
   { href: "/accounting", label: "Accounting", icon: IconCalculator },
   { href: "/accounting/reports", label: "Reports & Tax", icon: IconReport },
+  { href: "/accounting/tax", label: "Tax Center", icon: IconReport },
   { href: "/settings", label: "Settings", icon: IconSettings },
   { href: "/staff", label: "Staff", icon: IconUsers },
 ];
@@ -99,7 +101,7 @@ export function Sidebar({ isAdmin, shopName }: { isAdmin: boolean; shopName: str
         <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-accent-300 to-accent-500 font-display text-base font-bold tracking-tight text-slate-900 shadow-lg ring-1 ring-accent-200/40">
           JG
         </span>
-        <span className="truncate font-script text-2xl font-bold leading-none text-white">
+        <span className="truncate font-script text-4xl font-bold leading-none text-white">
           {shopName}
         </span>
       </Link>

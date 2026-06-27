@@ -158,7 +158,7 @@ export default function LoginPage() {
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-accent-300 to-accent-500 font-display text-2xl font-bold tracking-tight text-slate-900 shadow-[0_8px_30px_-6px_rgba(221,166,59,0.5)] ring-1 ring-accent-200/50">
             JG
           </div>
-          <h1 className="font-script text-5xl font-bold leading-tight text-white">Joe&apos;s Garage</h1>
+          <h1 className="font-script text-7xl font-bold leading-tight text-white">Joe&apos;s Garage</h1>
           <p className="mt-1 text-sm text-slate-400">Shop Management Platform</p>
         </div>
         <div className="rounded-2xl border border-white/10 bg-white/95 p-1 shadow-2xl backdrop-blur-xl">
