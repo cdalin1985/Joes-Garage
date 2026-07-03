@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
+import { createClient } from "@/lib/supabase/server";
 import { getTaxYearData } from "@/lib/tax-data";
 import { PageHeader, Card, Stat, SectionTitle, Alert, Badge } from "@/components/ui";
 import { IconReport, IconCalculator, IconCar, IconUsers, IconPackage, IconSettings, IconChevronRight } from "@/components/icons";
@@ -12,11 +13,31 @@ export const dynamic = "force-dynamic";
 export default async function TaxCenterPage({ searchParams }: { searchParams: { year?: string } }) {
   await requireAdmin();
   const year = parseInt(searchParams.year ?? `${TAX_YEAR}`, 10);
-  const d = await getTaxYearData(year);
+  const supabase = createClient();
+  const [d, { data: vendorData }, { data: vExpData }] = await Promise.all([
+    getTaxYearData(year),
+    supabase.from("vendors").select("id, is_1099, tax_id, w9_on_file"),
+    supabase
+      .from("expenses")
+      .select("vendor_id, amount, payment_method")
+      .gte("expense_date", `${year}-01-01`)
+      .lte("expense_date", `${year}-12-31`),
+  ]);
   const { profile, liability, estimate } = d;
 
   const entity = ENTITY_TYPES[profile.entity_type];
   const remainingFederal = Math.max(estimate.requiredAnnual - d.paidFederal, 0);
+
+  // 1099 readiness: any contractor over $600 (non-card) still missing a W-9 / tax ID?
+  const vendors1099 = (vendorData as { id: string; is_1099: boolean; tax_id: string | null; w9_on_file: boolean }[]) ?? [];
+  const nonCardByVendor = new Map<string, number>();
+  for (const e of ((vExpData as { vendor_id: string | null; amount: number; payment_method: string | null }[]) ?? [])) {
+    if (!e.vendor_id || e.payment_method === "card") continue;
+    nonCardByVendor.set(e.vendor_id, (nonCardByVendor.get(e.vendor_id) ?? 0) + e.amount);
+  }
+  const contractors1099Ready = !vendors1099.some(
+    (v) => v.is_1099 && (nonCardByVendor.get(v.id) ?? 0) >= 600 && (!v.tax_id || !v.w9_on_file),
+  );
 
   // Readiness checklist — nudges the owner toward a complete, audit-proof file.
   const checklist = [
@@ -26,6 +47,7 @@ export default async function TaxCenterPage({ searchParams }: { searchParams: { 
     { ok: d.estimatedPayments.length > 0, label: "Quarterly estimated payments tracked", href: "/accounting/tax/estimated" },
     { ok: !profile.has_home_office || profile.home_office_sqft > 0, label: "Home office measured (if used)", href: "/accounting/tax/profile" },
     { ok: d.vehicle.deduction > 0 || profile.vehicle_method === "actual", label: "Business mileage logged", href: "/accounting/tax/mileage" },
+    { ok: contractors1099Ready, label: "Contractors over $600 have a W-9 on file", href: "/accounting/tax/contractors" },
   ];
   const done = checklist.filter((c) => c.ok).length;
 
@@ -45,9 +67,14 @@ export default async function TaxCenterPage({ searchParams }: { searchParams: { 
         subtitle={`Over-prepared for ${year}. Files as ${entity.form}.`}
         backHref="/accounting"
         actions={
-          <Link href="/accounting/tax/schedule-c" className="btn-primary">
-            View Schedule C
-          </Link>
+          <>
+            <Link href={`/accounting/tax/packet?year=${year}`} className="btn-secondary">
+              Year-end packet
+            </Link>
+            <Link href="/accounting/tax/schedule-c" className="btn-primary">
+              View Schedule C
+            </Link>
+          </>
         }
       />
 

@@ -10,12 +10,14 @@ export function AppointmentForm({
   customers,
   vehicles,
   technicians,
+  defaultStart,
   cancelHref,
 }: {
   action: (formData: FormData) => void | Promise<void>;
   customers: Customer[];
   vehicles: Vehicle[];
   technicians: Profile[];
+  defaultStart?: string;
   cancelHref: string;
 }) {
   const [customerId, setCustomerId] = useState("");
@@ -57,7 +59,7 @@ export function AppointmentForm({
             </select>
           </Field>
           <Field label="Start" required>
-            <input type="datetime-local" name="start_time" className="input" required />
+            <input type="datetime-local" name="start_time" className="input" defaultValue={defaultStart} required />
           </Field>
           <Field label="End">
             <input type="datetime-local" name="end_time" className="input" />
