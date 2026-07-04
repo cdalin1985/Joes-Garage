@@ -549,3 +549,14 @@ export interface Database {
     };
   };
 }
+
+export interface PricingMatrixTier {
+  id: string;
+  cost_min: number;
+  cost_max: number | null;
+  markup_multiplier: number;
+  label: string | null;
+  sort_order: number;
+  is_active: boolean;
+  created_at: string;
+}
