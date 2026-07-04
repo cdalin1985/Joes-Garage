@@ -221,3 +221,47 @@ future roadmap item, called out so Joe & Cami know to keep a process for them:
 
 Every tax figure is labeled a **planning estimate** — confirm with a tax
 professional before filing.
+
+---
+
+## Part 7 — Shop PIN sign-in (optional, for Joe & Cami)
+
+Instead of typing an email and password every time, the app can show a friendly
+**PIN pad**: Joe taps his PIN and he's in; Cami taps hers. It stays secure — the
+PIN sits *in front of* a real sign-in, the actual passwords live only in Vercel's
+server settings (never in the browser), and all your financial/tax data stays
+protected. Anyone who finds the web address still hits the PIN wall.
+
+**Turn it on (one time):**
+
+1. **Create the two accounts** (if you haven't already). On the sign-in page add
+   `?staff=1` to the address (e.g. `.../login?staff=1`) to get the email/password
+   screen, choose **Create account**, and make **Joe's** account first (he becomes
+   Owner), then **Cami's**. Sign in as Joe → **Staff** → set **Cami = Admin**.
+   Write down each email and the exact password.
+   *(If Supabase emails a confirmation link, turn that off first: Supabase →
+   Authentication → Providers → Email → "Confirm email" OFF.)*
+2. **Pick a 6-digit PIN** for each person (easier than a password, harder to guess
+   than 4 digits).
+3. **Add the config in Vercel** → your project → **Settings → Environment
+   Variables**. Add one variable named **`SHOP_PINS`** with this value (swap in the
+   real emails, passwords, and PINs):
+
+   ```json
+   [{"name":"Joe","pin":"482716","email":"joe@joesgarage.com","password":"JoesRealPassword"},{"name":"Cami","pin":"159034","email":"cami@joesgarage.com","password":"CamisRealPassword"}]
+   ```
+
+   Set it for **Production**, save, then **Redeploy** (Deployments → ⋯ → Redeploy).
+
+That's it — the next visit shows the PIN pad.
+
+**Good to know**
+- **Escape hatch:** the email/password screen is always one tap away via the
+  **"Staff sign-in"** link under the keypad — handy if a PIN is forgotten or you
+  need to manage accounts.
+- **Change a PIN:** edit the `SHOP_PINS` value in Vercel and redeploy. **Turn it
+  off:** delete the variable.
+- **Security note:** a short PIN is easier to guess than a password. Six digits
+  plus the built-in wrong-PIN delay is a good balance for a two-person shop; the
+  full email/password path always remains available.
+- Signing out returns to the PIN pad.
