@@ -70,6 +70,9 @@ export default async function WorkOrderDetailPage({ params }: { params: { id: st
           <>
             <Badge tone={WORK_ORDER_STATUS[w.status].tone}>{WORK_ORDER_STATUS[w.status].label}</Badge>
             <Badge tone={WORK_ORDER_PRIORITY[w.priority].tone}>{WORK_ORDER_PRIORITY[w.priority].label}</Badge>
+            <Link href={`/work-orders/${id}/ro`} className="btn-secondary">
+              Repair Order
+            </Link>
             <Link href={`/work-orders/${id}/edit`} className="btn-secondary">
               Edit
             </Link>
