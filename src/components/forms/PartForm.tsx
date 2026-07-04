@@ -1,14 +1,17 @@
 import Link from "next/link";
 import { Card, Field } from "@/components/ui";
-import type { Part } from "@/lib/database.types";
+import { PartPricingFields } from "@/components/forms/PartPricingFields";
+import type { Part, PricingMatrixTier } from "@/lib/database.types";
 
 export function PartForm({
   action,
   part,
+  tiers = [],
   cancelHref,
 }: {
   action: (formData: FormData) => void | Promise<void>;
   part?: Partial<Part>;
+  tiers?: PricingMatrixTier[];
   cancelHref: string;
 }) {
   const p = part ?? {};
@@ -31,12 +34,7 @@ export function PartForm({
           <Field label="Bin location">
             <input name="bin_location" defaultValue={p.bin_location ?? ""} className="input" />
           </Field>
-          <Field label="Cost (you pay)">
-            <input type="number" step="0.01" name="cost" defaultValue={p.cost ?? ""} className="input" />
-          </Field>
-          <Field label="Price (customer pays)">
-            <input type="number" step="0.01" name="price" defaultValue={p.price ?? ""} className="input" />
-          </Field>
+          <PartPricingFields tiers={tiers} defaultCost={p.cost ?? null} defaultPrice={p.price ?? null} />
           <Field label="Qty on hand">
             <input type="number" step="1" name="quantity_on_hand" defaultValue={p.quantity_on_hand ?? 0} className="input" />
           </Field>

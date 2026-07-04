@@ -31,6 +31,9 @@ export default async function PartsPage({ searchParams }: { searchParams: { q?: 
         subtitle="Your catalog of parts and shop materials"
         actions={
           <>
+            <Link href="/parts/pricing-matrix" className="btn-secondary">
+              Pricing matrix
+            </Link>
             <Link href="/parts/purchase-orders" className="btn-secondary">
               <IconPackage className="h-4 w-4" /> Purchase orders
             </Link>
