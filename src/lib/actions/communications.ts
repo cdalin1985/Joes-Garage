@@ -20,6 +20,22 @@ export async function logCommunication(customerId: string, formData: FormData) {
   revalidatePath(`/customers/${customerId}`);
 }
 
+/** Quick "logged the call" entry from the Follow-Ups worklist. */
+export async function logFollowUpCall(customerId: string, formData: FormData) {
+  const supabase = createClient();
+  const profile = await getProfile();
+  const { error } = await supabase.from("customer_communications").insert({
+    customer_id: customerId,
+    type: "call" as CommunicationType,
+    direction: "outbound" as CommunicationDirection,
+    summary: str(formData, "summary") ?? "Follow-up call",
+    logged_by: profile?.id ?? null,
+  });
+  if (error) throw new Error(error.message);
+  revalidatePath("/follow-ups");
+  revalidatePath(`/customers/${customerId}`);
+}
+
 export async function deleteCommunication(id: string, customerId: string) {
   const supabase = createClient();
   const { error } = await supabase.from("customer_communications").delete().eq("id", id);
