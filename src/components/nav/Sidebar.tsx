@@ -16,6 +16,7 @@ import {
   IconCalculator,
   IconReport,
   IconSettings,
+  IconAlert,
 } from "@/components/icons";
 
 type NavItem = { href: string; label: string; icon: (p: { className?: string }) => ReactNode };
@@ -26,6 +27,7 @@ const OPERATIONS: NavItem[] = [
   { href: "/estimates", label: "Estimates", icon: IconEstimate },
   { href: "/invoices", label: "Invoices", icon: IconInvoice },
   { href: "/appointments", label: "Appointments", icon: IconCalendar },
+  { href: "/follow-ups", label: "Follow-Ups", icon: IconAlert },
 ];
 
 const CRM: NavItem[] = [
