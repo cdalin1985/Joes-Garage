@@ -112,6 +112,33 @@ export default async function SettingsPage({ searchParams }: { searchParams: { s
           <button className="btn-primary">Save settings</button>
         </div>
       </form>
+
+      <Card className="mt-5">
+        <SectionTitle>Your data</SectionTitle>
+        <p className="mb-4 text-sm text-slate-600">
+          Everything in this app is yours. Download any of it as a spreadsheet (CSV) any time — for a
+          backup, for your accountant, or just for peace of mind.
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {[
+            ["customers", "Customers"],
+            ["vehicles", "Vehicles"],
+            ["estimates", "Estimates"],
+            ["invoices", "Invoices"],
+            ["payments", "Payments"],
+            ["work-orders", "Work orders"],
+            ["expenses", "Expenses"],
+            ["parts", "Parts"],
+          ].map(([slug, label]) => (
+            <a key={slug} href={`/api/export/${slug}`} download className="btn-secondary !py-1.5 text-xs">
+              ⬇ {label}
+            </a>
+          ))}
+        </div>
+        <p className="mt-3 text-xs text-slate-400">
+          Files open in Excel or Google Sheets. Dates and amounts come out exactly as stored in the books.
+        </p>
+      </Card>
     </div>
   );
 }
