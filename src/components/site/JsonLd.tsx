@@ -73,6 +73,17 @@ export function localBusinessSchema() {
         closes: h.close,
       })),
     ...(sameAs.length ? { sameAs } : {}),
+    /** Technician certifications — a real trust signal, and a term people search. */
+    ...(site.certifications.length
+      ? {
+          hasCredential: site.certifications.map((c) => ({
+            "@type": "EducationalOccupationalCredential",
+            credentialCategory: "certification",
+            name: c,
+          })),
+          knowsAbout: [...site.certifications, ...services.map((s) => s.name)],
+        }
+      : {}),
     hasOfferCatalog: {
       "@type": "OfferCatalog",
       name: "Auto repair services",

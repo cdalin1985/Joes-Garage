@@ -64,8 +64,9 @@ export default function HomePage() {
               className="animate-rise mt-6 max-w-xl text-lg leading-relaxed text-slate-300"
               style={{ animationDelay: "120ms" }}
             >
-              An independent shop in {site.address.city} — every make and model, every repair
-              explained in plain English, and a written estimate before anyone picks up a wrench.
+              An <span className="font-semibold text-white">ASE Master Certified</span> independent
+              shop in {site.address.city} — every make and model, every repair explained in plain
+              English, and a written estimate before anyone picks up a wrench.
             </p>
 
             <div className="animate-rise mt-8" style={{ animationDelay: "180ms" }}>

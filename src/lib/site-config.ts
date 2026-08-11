@@ -20,7 +20,7 @@ export const site = {
   legalName: "Joe's Garage", // «FILL IN» if the registered/LLC name differs
   tagline: "Honest auto repair, done right the first time",
   shortDescription:
-    "Independent auto repair shop offering diagnostics, brakes, oil changes, A/C, engine and transmission work for every make and model.",
+    "ASE Master Certified auto repair in Helena, Montana — diagnostics, brakes, oil changes, A/C, engine and transmission work for every make and model.",
 
   /** Contact — «FILL IN» all of these with real values. */
   phone: "(555) 123-4567",
@@ -28,12 +28,12 @@ export const site = {
   phoneHref: "+15551234567",
   email: "service@joesgarage.com",
 
-  /** Street address — «FILL IN». Write it exactly as it appears on the mailbox. */
+  /** Street address — write it exactly as it appears on the mailbox. */
   address: {
-    street: "123 Main Street",
-    city: "Boulder",
-    state: "CO",
-    zip: "80301",
+    street: "123 Main Street", // «FILL IN»
+    city: "Helena",
+    state: "MT",
+    zip: "59601", // «FILL IN» — confirm the shop's actual ZIP
     country: "US",
   },
 
@@ -43,8 +43,18 @@ export const site = {
    */
   geo: { lat: null as number | null, lng: null as number | null },
 
-  /** Towns and neighborhoods served — these help you show up in nearby searches. */
-  serviceArea: ["Boulder", "Louisville", "Lafayette", "Superior", "Broomfield", "Longmont"],
+  /**
+   * Towns and neighborhoods served — these help you show up in nearby searches.
+   * «REVIEW» — trim anything you don't actually draw customers from.
+   */
+  serviceArea: [
+    "Helena",
+    "East Helena",
+    "Helena Valley",
+    "Montana City",
+    "Clancy",
+    "Townsend",
+  ],
 
   /**
    * Opening hours. Use 24-hour "HH:MM". Set `closed: true` for days you're shut.
@@ -79,10 +89,18 @@ export const site = {
    * ⚠️ «REVIEW» — only claim what is actually true. Delete any that don't apply.
    */
   trust: [
-    { label: "Warranty on repairs", value: "24 months / 24,000 miles" },
+    { label: "ASE Master Certified", value: "Top-tier technician certification" },
     { label: "Free written estimates", value: "Approve before we touch it" },
     { label: "Photo inspections", value: "See what we see, on your phone" },
     { label: "All makes & models", value: "Domestic, import, and fleet" },
+  ],
+
+  /**
+   * Certifications. "ASE Master Certified" is a genuine differentiator and a
+   * term people actually search for — keep it accurate and current.
+   */
+  certifications: [
+    "ASE Master Certified Specialist",
   ],
 
   /** Year the shop opened — used in the About page and the footer. «FILL IN» */

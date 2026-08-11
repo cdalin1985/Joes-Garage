@@ -76,6 +76,13 @@ export default function AboutPage() {
                 coming here since the beginning, and now bring their kids&apos; cars in too. That
                 is the whole business model.
               </p>
+              <p>
+                We&apos;re <span className="font-semibold text-slate-900">ASE Master Certified</span>{" "}
+                — the highest level of certification the National Institute for Automotive Service
+                Excellence awards, earned by passing every major test area and re-earned every five
+                years. It doesn&apos;t make us infallible. It does mean the person diagnosing your
+                car has proven they know the systems inside it.
+              </p>
             </div>
 
             <div className="mt-8">
