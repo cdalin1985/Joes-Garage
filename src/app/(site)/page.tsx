@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { site, services, faqs, groupedHours } from "@/lib/site-config";
 import { FaqSchema } from "@/components/site/JsonLd";
+import { Reveal, RevealGroup } from "@/components/site/Reveal";
+import { ServiceIcon } from "@/components/site/ServiceIcon";
 import {
   CallToAction,
   ClosingCta,
@@ -45,8 +47,8 @@ export default function HomePage() {
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden bg-slate-950">
         <div className="absolute inset-0" style={HATCH} />
-        <div className="pointer-events-none absolute -left-32 top-10 h-96 w-96 rounded-full bg-brand-500/20 blur-3xl" />
-        <div className="pointer-events-none absolute -right-24 bottom-0 h-[28rem] w-[28rem] rounded-full bg-accent-500/15 blur-3xl" />
+        <div className="orb-drift pointer-events-none absolute -left-32 top-10 h-96 w-96 rounded-full bg-brand-500/20 blur-3xl" />
+        <div className="orb-drift-slow pointer-events-none absolute -right-24 bottom-0 h-[28rem] w-[28rem] rounded-full bg-accent-500/15 blur-3xl" />
 
         <div className="relative mx-auto grid max-w-6xl gap-12 px-5 py-20 lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:py-28">
           <div>
@@ -136,25 +138,28 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <RevealGroup className="svc-grid mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {services.slice(0, 9).map((s) => (
               <Link
                 key={s.slug}
                 href={`/services/${s.slug}`}
-                className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 transition-all duration-200 hover:-translate-y-1 hover:border-brand-300 hover:shadow-lift"
+                className="svc-card flex flex-col rounded-2xl border border-slate-200 bg-white p-6 hover:border-brand-300 hover:shadow-lift"
               >
-                <span className="absolute right-0 top-0 h-12 w-12 bg-gradient-to-bl from-accent-200/50 to-transparent transition-colors group-hover:from-accent-300/70" />
-                <h3 className="pr-6 font-display text-lg font-bold leading-snug text-slate-900 group-hover:text-brand-700">
+                <span className="ico-chip mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-accent-100 to-accent-200 text-brand-700 ring-1 ring-inset ring-accent-300/60">
+                  <ServiceIcon slug={s.slug} name={s.name} />
+                </span>
+                <h3 className="font-display text-lg font-bold leading-snug text-slate-900">
                   {s.name}
                 </h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-600">{s.blurb}</p>
-                <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-brand-600">
+                <span className="svc-rule mb-2.5 mt-2" />
+                <p className="flex-1 text-sm leading-relaxed text-slate-600">{s.blurb}</p>
+                <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-600">
                   Learn more
-                  <span className="transition-transform duration-200 group-hover:translate-x-1">→</span>
+                  <span className="svc-arrow">→</span>
                 </span>
               </Link>
             ))}
-          </div>
+          </RevealGroup>
 
           <div className="mt-8">
             <ServiceAreaNote />
@@ -170,17 +175,17 @@ export default function HomePage() {
             No surprises on the invoice. Ever.
           </h2>
 
-          <div className="mt-12 grid gap-10 md:grid-cols-3">
+          <RevealGroup className="mt-12 grid gap-10 md:grid-cols-3">
             {STEPS.map((s) => (
-              <div key={s.n} className="relative">
-                <span className="font-display text-6xl font-extrabold leading-none text-slate-200">
+              <div key={s.n} className="step relative">
+                <span className="step-num block font-display text-6xl font-extrabold leading-none text-slate-200">
                   {s.n}
                 </span>
                 <h3 className="mt-3 font-display text-xl font-bold text-slate-900">{s.title}</h3>
                 <p className="mt-2 leading-relaxed text-slate-600">{s.body}</p>
               </div>
             ))}
-          </div>
+          </RevealGroup>
         </div>
       </section>
 
@@ -189,7 +194,7 @@ export default function HomePage() {
         <div className="absolute inset-0" style={HATCH} />
         <div className="pointer-events-none absolute -right-20 top-1/3 h-80 w-80 rounded-full bg-brand-500/20 blur-3xl" />
         <div className="relative mx-auto grid max-w-6xl gap-12 px-5 lg:grid-cols-2 lg:items-center">
-          <div>
+          <Reveal>
             <Eyebrow tone="light">See what we see</Eyebrow>
             <h2 className="text-3xl font-extrabold leading-tight text-white sm:text-4xl">
               We send you photos of the problem — before you approve the fix
@@ -206,25 +211,27 @@ export default function HomePage() {
               It&apos;s also why nothing gets repaired without your say-so. Green means it&apos;s
               fine. Yellow means keep an eye on it. Red means let&apos;s talk.
             </p>
-          </div>
+          </Reveal>
 
-          <ul className="space-y-3">
+          <RevealGroup className="space-y-3">
             {[
-              { tone: "bg-red-500", label: "Front brake pads at 2mm", note: "Needs attention now" },
-              { tone: "bg-amber-400", label: "Serpentine belt cracking", note: "Plan for it soon" },
-              { tone: "bg-emerald-500", label: "Battery tested strong", note: "Looks good" },
-              { tone: "bg-emerald-500", label: "Tires 7/32\" even wear", note: "Looks good" },
+              { tone: "bg-red-500", pulse: true, label: "Front brake pads at 2mm", note: "Needs attention now" },
+              { tone: "bg-amber-400", pulse: true, label: "Serpentine belt cracking", note: "Plan for it soon" },
+              { tone: "bg-emerald-500", pulse: false, label: "Battery tested strong", note: "Looks good" },
+              { tone: "bg-emerald-500", pulse: false, label: "Tires 7/32\" even wear", note: "Looks good" },
             ].map((row) => (
-              <li
+              <div
                 key={row.label}
-                className="flex items-center gap-4 rounded-xl border border-white/10 bg-white/[0.04] px-5 py-4"
+                className="lift-row flex items-center gap-4 rounded-xl border border-white/10 bg-white/[0.04] px-5 py-4 hover:border-white/25 hover:bg-white/[0.07]"
               >
-                <span className={`h-3 w-3 shrink-0 rounded-full ${row.tone}`} />
+                <span
+                  className={`h-3 w-3 shrink-0 rounded-full ${row.tone} ${row.pulse ? "pulse-dot" : ""}`}
+                />
                 <span className="flex-1 font-medium text-white">{row.label}</span>
                 <span className="text-sm text-slate-400">{row.note}</span>
-              </li>
+              </div>
             ))}
-          </ul>
+          </RevealGroup>
         </div>
       </section>
 

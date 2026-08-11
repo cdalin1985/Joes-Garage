@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { site, services } from "@/lib/site-config";
 import { BreadcrumbSchema } from "@/components/site/JsonLd";
+import { RevealGroup } from "@/components/site/Reveal";
+import { ServiceIcon } from "@/components/site/ServiceIcon";
 import { ClosingCta, PageHero, ServiceAreaNote } from "@/components/site/sections";
 
 export const metadata: Metadata = {
@@ -28,25 +30,28 @@ export default function ServicesPage() {
 
       <section className="bg-white py-16 sm:py-20">
         <div className="mx-auto max-w-6xl px-5">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <RevealGroup className="svc-grid grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {services.map((s) => (
               <Link
                 key={s.slug}
                 href={`/services/${s.slug}`}
-                className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 transition-all duration-200 hover:-translate-y-1 hover:border-brand-300 hover:shadow-lift"
+                className="svc-card flex flex-col rounded-2xl border border-slate-200 bg-white p-6 hover:border-brand-300 hover:shadow-lift"
               >
-                <span className="absolute right-0 top-0 h-12 w-12 bg-gradient-to-bl from-accent-200/50 to-transparent transition-colors group-hover:from-accent-300/70" />
-                <h2 className="pr-6 font-display text-lg font-bold leading-snug text-slate-900 group-hover:text-brand-700">
+                <span className="ico-chip mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-accent-100 to-accent-200 text-brand-700 ring-1 ring-inset ring-accent-300/60">
+                  <ServiceIcon slug={s.slug} name={s.name} />
+                </span>
+                <h2 className="font-display text-lg font-bold leading-snug text-slate-900">
                   {s.name}
                 </h2>
-                <p className="mt-2 flex-1 text-sm leading-relaxed text-slate-600">{s.blurb}</p>
-                <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-brand-600">
+                <span className="svc-rule mb-2.5 mt-2" />
+                <p className="flex-1 text-sm leading-relaxed text-slate-600">{s.blurb}</p>
+                <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-600">
                   Learn more
-                  <span className="transition-transform duration-200 group-hover:translate-x-1">→</span>
+                  <span className="svc-arrow">→</span>
                 </span>
               </Link>
             ))}
-          </div>
+          </RevealGroup>
 
           <div className="mt-10 rounded-2xl border border-slate-200 bg-slate-50 p-6 sm:p-8">
             <h2 className="font-display text-xl font-bold text-slate-900">

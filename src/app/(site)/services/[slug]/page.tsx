@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { site, services, faqs } from "@/lib/site-config";
 import { BreadcrumbSchema, FaqSchema, ServiceSchema } from "@/components/site/JsonLd";
+import { RevealGroup } from "@/components/site/Reveal";
 import { ClosingCta, Eyebrow, FaqList, HATCH } from "@/components/site/sections";
 
 /** Pre-build a page for every service so they load instantly and index cleanly. */
@@ -89,14 +90,14 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
             <h2 className="text-2xl font-extrabold leading-tight text-slate-900 sm:text-3xl">
               Sound familiar?
             </h2>
-            <ul className="mt-6 space-y-3">
+            <RevealGroup className="mt-6 space-y-3">
               {service.symptoms.map((s) => (
-                <li key={s} className="flex items-start gap-3">
+                <div key={s} className="flex items-start gap-3">
                   <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-500" />
                   <span className="leading-relaxed text-slate-700">{s}</span>
-                </li>
+                </div>
               ))}
-            </ul>
+            </RevealGroup>
             <p className="mt-6 leading-relaxed text-slate-600">
               Any one of these is worth a phone call. Describing it to us costs nothing, and
               catching it early is almost always the cheaper repair.
@@ -108,16 +109,16 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
             <h2 className="text-2xl font-extrabold leading-tight text-slate-900">
               How we handle it
             </h2>
-            <ul className="mt-6 space-y-3">
+            <RevealGroup className="mt-6 space-y-3">
               {service.includes.map((s) => (
-                <li key={s} className="flex items-start gap-3">
+                <div key={s} className="flex items-start gap-3">
                   <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-700">
                     ✓
                   </span>
                   <span className="leading-relaxed text-slate-700">{s}</span>
-                </li>
+                </div>
               ))}
-            </ul>
+            </RevealGroup>
             <div className="mt-6 border-t border-dashed border-slate-300 pt-5">
               <p className="text-sm leading-relaxed text-slate-600">
                 Every job starts with a free written estimate and ends with a road test. You approve
