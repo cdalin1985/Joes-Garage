@@ -54,7 +54,8 @@ export function localBusinessSchema() {
       streetAddress: site.address.street,
       addressLocality: site.address.city,
       addressRegion: site.address.state,
-      postalCode: site.address.zip,
+      // Omitted rather than sent empty until the real ZIP is confirmed.
+      ...(site.address.zip ? { postalCode: site.address.zip } : {}),
       addressCountry: site.address.country,
     },
     ...(site.geo.lat != null && site.geo.lng != null

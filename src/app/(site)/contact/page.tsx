@@ -74,18 +74,21 @@ export default function ContactPage() {
                 </a>
               </div>
 
-              <div className="border-t border-slate-100 pt-5">
-                <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Email</p>
-                <a
-                  href={`mailto:${site.email}`}
-                  className="mt-1 block font-medium text-brand-600 hover:underline"
-                >
-                  {site.email}
-                </a>
-                <p className="mt-1 text-sm text-slate-500">
-                  Best for estimates, records, and fleet accounts. For anything urgent, please call.
-                </p>
-              </div>
+              {site.email && (
+                <div className="border-t border-slate-100 pt-5">
+                  <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Email</p>
+                  <a
+                    href={`mailto:${site.email}`}
+                    className="mt-1 block font-medium text-brand-600 hover:underline"
+                  >
+                    {site.email}
+                  </a>
+                  <p className="mt-1 text-sm text-slate-500">
+                    Best for estimates, records, and fleet accounts. For anything urgent, please
+                    call.
+                  </p>
+                </div>
+              )}
 
               <div className="border-t border-slate-100 pt-5">
                 <p className="text-xs font-bold uppercase tracking-wide text-slate-500">

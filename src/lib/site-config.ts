@@ -22,18 +22,18 @@ export const site = {
   shortDescription:
     "ASE Master Certified auto repair in Helena, Montana — diagnostics, brakes, oil changes, A/C, engine and transmission work for every make and model.",
 
-  /** Contact — «FILL IN» all of these with real values. */
-  phone: "(555) 123-4567",
+  phone: "(406) 577-6663",
   /** Same number, digits only, for tap-to-call links. */
-  phoneHref: "+15551234567",
-  email: "service@joesgarage.com",
+  phoneHref: "+14065776663",
+  /** «FILL IN» — left blank on purpose; the email block is hidden until it's set. */
+  email: "",
 
   /** Street address — write it exactly as it appears on the mailbox. */
   address: {
-    street: "123 Main Street", // «FILL IN»
+    street: "2810 N Cook",
     city: "Helena",
     state: "MT",
-    zip: "59601", // «FILL IN» — confirm the shop's actual ZIP
+    zip: "", // «FILL IN» — 59601 or 59602; must match the Google listing exactly
     country: "US",
   },
 
@@ -66,7 +66,10 @@ export const site = {
     { day: "Wednesday", open: "08:00", close: "17:00", closed: false },
     { day: "Thursday", open: "08:00", close: "17:00", closed: false },
     { day: "Friday", open: "08:00", close: "17:00", closed: false },
-    { day: "Saturday", open: "09:00", close: "13:00", closed: false },
+    // «CONFIRM» — set closed:false and real times if the shop opens Saturdays.
+    // Listing a day as closed when you're open costs a customer; listing it as
+    // open when you're closed costs a customer AND earns a bad review.
+    { day: "Saturday", open: "", close: "", closed: true },
     { day: "Sunday", open: "", close: "", closed: true },
   ],
 
@@ -103,8 +106,11 @@ export const site = {
     "ASE Master Certified Specialist",
   ],
 
-  /** Year the shop opened — used in the About page and the footer. «FILL IN» */
-  foundedYear: 1998,
+  /**
+   * Year the shop opened. «FILL IN» — left null on purpose so the site never
+   * claims a founding year we haven't confirmed. The About page adapts.
+   */
+  foundedYear: null as number | null,
 } as const;
 
 export type Service = {
@@ -409,7 +415,12 @@ export const faqs = [
 
 /* ── Helpers used by the pages and by the data Google reads ─────────────── */
 
-export const fullAddress = `${site.address.street}, ${site.address.city}, ${site.address.state} ${site.address.zip}`;
+export const fullAddress = [
+  site.address.street,
+  `${site.address.city}, ${site.address.state}${site.address.zip ? ` ${site.address.zip}` : ""}`,
+]
+  .filter(Boolean)
+  .join(", ");
 
 export const mapsDirectionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
   `${site.name}, ${fullAddress}`,

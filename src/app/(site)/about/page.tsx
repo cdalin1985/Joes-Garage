@@ -35,7 +35,11 @@ const VALUES = [
 ];
 
 export default function AboutPage() {
-  const years = new Date().getFullYear() - site.foundedYear;
+  // Only claim a history if we've been told one.
+  const years = site.foundedYear ? new Date().getFullYear() - site.foundedYear : null;
+  const lede = site.foundedYear
+    ? `Locally owned and independent since ${site.foundedYear} — that's ${years} years of fixing cars for the people who live around here.`
+    : `Locally owned, independent, and ASE Master Certified — fixing cars for the people who live and work around ${site.address.city}.`;
 
   return (
     <>
@@ -49,7 +53,7 @@ export default function AboutPage() {
       <PageHero
         eyebrow="About us"
         title={`A neighborhood shop in ${site.address.city}`}
-        lede={`Locally owned and independent since ${site.foundedYear} — that's ${years} years of fixing cars for the people who live around here.`}
+        lede={lede}
       />
 
       <section className="bg-white py-16 sm:py-20">

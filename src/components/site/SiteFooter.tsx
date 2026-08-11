@@ -28,11 +28,13 @@ export function SiteFooter() {
                 {site.phone}
               </a>
             </p>
-            <p>
-              <a href={`mailto:${site.email}`} className="hover:text-slate-200">
-                {site.email}
-              </a>
-            </p>
+            {site.email && (
+              <p>
+                <a href={`mailto:${site.email}`} className="hover:text-slate-200">
+                  {site.email}
+                </a>
+              </p>
+            )}
           </address>
 
           <a
