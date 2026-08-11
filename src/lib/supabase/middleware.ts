@@ -2,11 +2,39 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { SUPABASE_ANON_KEY, SUPABASE_URL, isSupabaseConfigured } from "@/lib/env";
 
-/** Public routes that do not require authentication. */
-const PUBLIC_PATHS = ["/login", "/auth", "/setup", "/_next", "/favicon.ico"];
+/**
+ * Routes that do not require authentication: the public marketing website,
+ * the sign-in flow, and the customer-facing inspection share link.
+ *
+ * Matched exactly — "/" must never be treated as a prefix or it would make
+ * the entire staff application public.
+ */
+const PUBLIC_EXACT = new Set([
+  "/", // marketing home
+  "/about",
+  "/contact",
+  "/services",
+  "/login",
+  "/setup",
+  "/favicon.ico",
+  "/robots.txt",
+  "/sitemap.xml",
+  "/manifest.webmanifest",
+]);
+
+/** Routes where everything beneath the prefix is also public. */
+const PUBLIC_PREFIXES = [
+  "/services/", // one page per service
+  "/inspect/", // customer's photo inspection, opened from a texted link
+  "/auth/",
+  "/_next/",
+  "/opengraph-image", // generated share image (may carry a hash suffix)
+  "/icon", // generated favicon (may carry a hash suffix)
+];
 
 function isPublic(pathname: string): boolean {
-  return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/") || pathname.startsWith(p));
+  if (PUBLIC_EXACT.has(pathname)) return true;
+  return PUBLIC_PREFIXES.some((p) => pathname.startsWith(p));
 }
 
 export async function updateSession(request: NextRequest) {

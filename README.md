@@ -15,12 +15,19 @@ small team** with role-based access.
 > NAPA TRACS + QuickBooks + Accounting Link. For a print-and-check-off
 > version to keep at the desk, see the [Quick Start](docs/QUICKSTART.md).
 
+> 🌐 **Getting found by customers?** The repo also serves the shop's **public
+> marketing website** at `/`. Before it goes live, fill in the real business
+> details in [`src/lib/site-config.ts`](src/lib/site-config.ts), then follow
+> [Getting Found on Google](docs/GOOGLE_AND_SEO.md) to set up the Google
+> Business Profile and search listings.
+
 ---
 
 ## What's inside
 
 | Area | Features |
 | --- | --- |
+| **Public website** | Marketing site at `/` — home, services (a page per service), about, contact; local-business structured data, sitemap, robots, share images. All content driven by one config file |
 | **Dashboard** | Role-aware KPIs (month income/expense/net, A/R), open work orders, invoices needing payment, quick actions |
 | **Customers (CRM)** | Individuals, fleet & commercial accounts, contacts, lifetime value, open balance, full history |
 | **Vehicles** | Year/make/model/trim, VIN, plate, mileage, engine/trans/drivetrain, per-vehicle service history |
