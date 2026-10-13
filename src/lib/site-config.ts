@@ -12,8 +12,17 @@
  */
 
 export const site = {
-  /** Public web address of this site, no trailing slash. «FILL IN» once the domain is set. */
-  url: process.env.NEXT_PUBLIC_SITE_URL || "https://joesgarage.com",
+  /**
+   * Public web address of this site, no trailing slash. The shop has no
+   * domain yet, so on Vercel this is the project's production address
+   * (VERCEL_PROJECT_PRODUCTION_URL, e.g. something.vercel.app — set by Vercel,
+   * no "https://"). Once a domain is bought, set NEXT_PUBLIC_SITE_URL to it.
+   */
+  url:
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : "http://localhost:3000"),
 
   /** Business name — must match the Google Business Profile character for character. */
   /** As written on the shop's own Facebook page. */
@@ -34,7 +43,7 @@ export const site = {
     street: "2810 N Cooke St", // as listed on the shop's Facebook page
     city: "Helena",
     state: "MT",
-    zip: "", // «FILL IN» — 59601 or 59602; must match the Google listing exactly
+    zip: "59601", // confirmed by the owner; must match the Google listing exactly
     country: "US",
   },
 
@@ -67,9 +76,8 @@ export const site = {
     { day: "Wednesday", open: "08:00", close: "17:00", closed: false },
     { day: "Thursday", open: "08:00", close: "17:00", closed: false },
     { day: "Friday", open: "08:00", close: "17:00", closed: false },
-    // «CONFIRM» — set closed:false and real times if the shop opens Saturdays.
-    // Listing a day as closed when you're open costs a customer; listing it as
-    // open when you're closed costs a customer AND earns a bad review.
+    // 8 AM – 5 PM confirmed by the owner. Weekends are listed closed — set
+    // closed:false and real times if the shop starts opening Saturdays.
     { day: "Saturday", open: "", close: "", closed: true },
     { day: "Sunday", open: "", close: "", closed: true },
   ],
@@ -100,8 +108,8 @@ export const site = {
   ],
 
   /**
-   * Certifications. "ASE Master Certified" is a genuine differentiator and a
-   * term people actually search for — keep it accurate and current.
+   * Certifications. "ASE Master Certified" is confirmed by the owner — a
+   * genuine differentiator and a term people search for. Keep it current.
    */
   certifications: [
     "ASE Master Certified Specialist",
