@@ -87,7 +87,7 @@ export function ClosingCta({
         <div className="mt-8 flex justify-center">
           <CallToAction tone="light" />
         </div>
-        <p className="mt-6 text-sm text-slate-500">
+        <p className="mt-6 text-sm text-slate-400">
           {site.address.street}, {site.address.city} · Free written estimates
         </p>
       </div>
@@ -96,18 +96,34 @@ export function ClosingCta({
 }
 
 /** Frequently asked questions — expandable, no JavaScript required. */
-export function FaqList({ items }: { items: { q: string; a: string }[] }) {
+export function FaqList({
+  items,
+  tone = "light",
+  reveal = false,
+}: {
+  items: { q: string; a: string }[];
+  tone?: "light" | "dark";
+  /** Mark rows for ScrollReveal (only inside a ScrollReveal wrapper). */
+  reveal?: boolean;
+}) {
+  const dark = tone === "dark";
   return (
-    <div className="divide-y divide-slate-200 border-y border-slate-200">
+    <div className={`divide-y border-y ${dark ? "divide-white/10 border-white/10" : "divide-slate-200 border-slate-200"}`}>
       {items.map((f) => (
-        <details key={f.q} className="group py-5">
+        <details key={f.q} className="group py-5" {...(reveal ? { "data-reveal": "" } : {})}>
           <summary className="flex cursor-pointer list-none items-start justify-between gap-4">
-            <h3 className="text-lg font-bold text-slate-900 group-open:text-brand-700">{f.q}</h3>
+            <h3
+              className={`text-lg font-bold ${
+                dark ? "text-white group-open:text-[#ffb02e]" : "text-slate-900 group-open:text-brand-700"
+              }`}
+            >
+              {f.q}
+            </h3>
             <span className="mt-1 shrink-0 text-2xl leading-none text-accent-500 transition-transform duration-200 group-open:rotate-45">
               +
             </span>
           </summary>
-          <p className="mt-3 max-w-3xl leading-relaxed text-slate-600">{f.a}</p>
+          <p className={`mt-3 max-w-3xl leading-relaxed ${dark ? "text-white/60" : "text-slate-600"}`}>{f.a}</p>
         </details>
       ))}
     </div>
@@ -117,11 +133,11 @@ export function FaqList({ items }: { items: { q: string; a: string }[] }) {
 /** Towns served — real words on the page for nearby searches. */
 export function ServiceAreaNote() {
   return (
-    <p className="text-sm leading-relaxed text-slate-500">
+    <p className="text-sm leading-relaxed text-white/55">
       Proudly serving drivers in{" "}
-      <span className="font-semibold text-slate-700">{site.serviceArea.join(", ")}</span> and the
+      <span className="font-semibold text-white/75">{site.serviceArea.join(", ")}</span> and the
       surrounding area.{" "}
-      <Link href="/contact" className="font-semibold text-brand-600 hover:underline">
+      <Link href="/contact" className="font-semibold text-[#ffb02e] hover:underline">
         Find us →
       </Link>
     </p>

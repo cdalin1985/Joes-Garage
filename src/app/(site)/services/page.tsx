@@ -28,24 +28,24 @@ export default function ServicesPage() {
         lede={`From an oil change to an engine job, we handle it in-house for nearly every make and model on the road in ${site.address.city}.`}
       />
 
-      <section className="bg-white py-16 sm:py-20">
+      <section className="bg-[#0a0908] py-16 sm:py-20">
         <div className="mx-auto max-w-6xl px-5">
           <RevealGroup className="svc-grid grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {services.map((s) => (
               <Link
                 key={s.slug}
                 href={`/services/${s.slug}`}
-                className="svc-card flex flex-col rounded-2xl border border-slate-200 bg-white p-6 hover:border-brand-300 hover:shadow-lift"
+                className="svc-card flex flex-col rounded-2xl border border-white/10 bg-white/[0.04] p-6 hover:border-[#ffb02e]/50 hover:shadow-lift"
               >
-                <span className="ico-chip mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-accent-100 to-accent-200 text-brand-700 ring-1 ring-inset ring-accent-300/60">
+                <span className="ico-chip mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#ffd27a] to-[#ff8a1a] text-[#2a1305] shadow-[0_8px_24px_-8px_rgba(255,140,40,0.7)]">
                   <ServiceIcon slug={s.slug} name={s.name} />
                 </span>
-                <h2 className="font-display text-lg font-bold leading-snug text-slate-900">
+                <h2 className="font-display text-lg font-bold leading-snug text-white">
                   {s.name}
                 </h2>
                 <span className="svc-rule mb-2.5 mt-2" />
-                <p className="flex-1 text-sm leading-relaxed text-slate-600">{s.blurb}</p>
-                <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-600">
+                <p className="flex-1 text-sm leading-relaxed text-white/60">{s.blurb}</p>
+                <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-[#ffb02e]">
                   Learn more
                   <span className="svc-arrow">→</span>
                 </span>
@@ -53,16 +53,16 @@ export default function ServicesPage() {
             ))}
           </RevealGroup>
 
-          <div className="mt-10 rounded-2xl border border-slate-200 bg-slate-50 p-6 sm:p-8">
-            <h2 className="font-display text-xl font-bold text-slate-900">
+          <div className="mt-10 rounded-2xl border border-white/10 bg-[#12100e] p-6 sm:p-8">
+            <h2 className="font-display text-xl font-bold text-white">
               Don&apos;t see what you need?
             </h2>
-            <p className="mt-2 max-w-2xl leading-relaxed text-slate-600">
+            <p className="mt-2 max-w-2xl leading-relaxed text-white/60">
               This list covers what comes through the bay most often, but it isn&apos;t everything we
               do. Call us and describe the problem — if it&apos;s something we shouldn&apos;t take
               on, we&apos;ll tell you that too, and point you somewhere that can.
             </p>
-            <a href={`tel:${site.phoneHref}`} className="btn-primary mt-5">
+            <a href={`tel:${site.phoneHref}`} className="btn-ignite mt-5">
               Call {site.phone}
             </a>
           </div>

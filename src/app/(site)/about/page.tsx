@@ -56,14 +56,14 @@ export default function AboutPage() {
         lede={lede}
       />
 
-      <section className="bg-white py-16 sm:py-20">
+      <section className="bg-[#0a0908] py-16 sm:py-20">
         <div className="mx-auto grid max-w-6xl gap-12 px-5 lg:grid-cols-[1.1fr_0.9fr]">
           <div>
-            <Eyebrow>Our story</Eyebrow>
-            <h2 className="text-3xl font-extrabold leading-tight text-slate-900">
+            <Eyebrow tone="light">Our story</Eyebrow>
+            <h2 className="text-3xl font-extrabold leading-tight text-white">
               Built on repeat customers, not one-time tickets
             </h2>
-            <div className="mt-6 space-y-4 text-lg leading-relaxed text-slate-600">
+            <div className="mt-6 space-y-4 text-lg leading-relaxed text-white/60">
               <p>
                 Most people don&apos;t enjoy taking their car in. They&apos;ve been talked down to,
                 handed a bill they didn&apos;t understand, or sold something they didn&apos;t need.
@@ -81,7 +81,7 @@ export default function AboutPage() {
                 is the whole business model.
               </p>
               <p>
-                We&apos;re <span className="font-semibold text-slate-900">ASE Master Certified</span>{" "}
+                We&apos;re <span className="font-semibold text-white">ASE Master Certified</span>{" "}
                 — the highest level of certification the National Institute for Automotive Service
                 Excellence awards, earned by passing every major test area and re-earned every five
                 years. It doesn&apos;t make us infallible. It does mean the person diagnosing your
@@ -96,35 +96,35 @@ export default function AboutPage() {
 
           <div className="space-y-4">
             {VALUES.map((v) => (
-              <div key={v.title} className="rounded-2xl border border-slate-200 bg-slate-50 p-6">
-                <h3 className="font-display text-lg font-bold text-slate-900">{v.title}</h3>
-                <p className="mt-2 leading-relaxed text-slate-600">{v.body}</p>
+              <div key={v.title} className="rounded-2xl border border-white/10 bg-[#12100e] p-6">
+                <h3 className="font-display text-lg font-bold text-white">{v.title}</h3>
+                <p className="mt-2 leading-relaxed text-white/60">{v.body}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="bg-slate-50 py-16">
+      <section className="bg-[#12100e] py-16">
         <div className="mx-auto max-w-6xl px-5">
-          <Eyebrow>What you can count on</Eyebrow>
-          <h2 className="text-3xl font-extrabold leading-tight text-slate-900">
+          <Eyebrow tone="light">What you can count on</Eyebrow>
+          <h2 className="text-3xl font-extrabold leading-tight text-white">
             The promises we actually keep
           </h2>
           <dl className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {site.trust.map((t) => (
               <div key={t.label} className="border-t-2 border-accent-400 pt-4">
-                <dt className="font-display text-sm font-bold uppercase tracking-wide text-slate-500">
+                <dt className="font-display text-sm font-bold uppercase tracking-wide text-white/55">
                   {t.label}
                 </dt>
-                <dd className="mt-1 text-lg font-semibold text-slate-900">{t.value}</dd>
+                <dd className="mt-1 text-lg font-semibold text-white">{t.value}</dd>
               </div>
             ))}
           </dl>
-          <p className="mt-8 max-w-2xl leading-relaxed text-slate-600">
+          <p className="mt-8 max-w-2xl leading-relaxed text-white/60">
             Have a question about a repair, a second opinion, or whether a car is worth
             fixing?{" "}
-            <Link href="/contact" className="font-semibold text-brand-600 hover:underline">
+            <Link href="/contact" className="font-semibold text-[#ffb02e] hover:underline">
               Get in touch
             </Link>{" "}
             — we&apos;re happy to talk it through before you commit to anything.

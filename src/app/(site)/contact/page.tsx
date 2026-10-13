@@ -37,29 +37,29 @@ export default function ContactPage() {
         lede="The fastest way to get an answer is the phone. Tell us what the car is doing and we'll tell you what it likely needs and when we can look at it."
       />
 
-      <section className="bg-white py-16 sm:py-20">
+      <section className="bg-[#0a0908] py-16 sm:py-20">
         <div className="mx-auto grid max-w-6xl gap-10 px-5 lg:grid-cols-[0.9fr_1.1fr]">
           {/* Contact details */}
           <div>
-            <Eyebrow>Get in touch</Eyebrow>
+            <Eyebrow tone="light">Get in touch</Eyebrow>
 
             <a
               href={`tel:${site.phoneHref}`}
-              className="block rounded-2xl border-2 border-accent-400 bg-accent-50 p-6 transition hover:bg-accent-100"
+              className="block rounded-2xl border-2 border-[#ffb02e]/70 bg-[#ffb02e]/10 p-6 transition hover:bg-[#ffb02e]/15"
             >
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-accent-700">
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#ffb02e]">
                 Call the shop
               </p>
-              <p className="mt-1 font-display text-3xl font-extrabold text-slate-900">
+              <p className="mt-1 font-display text-3xl font-extrabold text-white">
                 {site.phone}
               </p>
-              <p className="mt-1 text-sm text-slate-600">Tap to call from your phone</p>
+              <p className="mt-1 text-sm text-white/60">Tap to call from your phone</p>
             </a>
 
-            <div className="mt-5 space-y-5 rounded-2xl border border-slate-200 p-6">
+            <div className="mt-5 space-y-5 rounded-2xl border border-white/10 p-6">
               <div>
-                <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Address</p>
-                <address className="mt-1 not-italic leading-relaxed text-slate-800">
+                <p className="text-xs font-bold uppercase tracking-wide text-white/55">Address</p>
+                <address className="mt-1 not-italic leading-relaxed text-white/90">
                   {site.address.street}
                   <br />
                   {site.address.city}, {site.address.state} {site.address.zip}
@@ -68,47 +68,47 @@ export default function ContactPage() {
                   href={mapsDirectionsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-2 inline-block text-sm font-semibold text-brand-600 hover:underline"
+                  className="mt-2 inline-block text-sm font-semibold text-[#ffb02e] hover:underline"
                 >
                   Get directions →
                 </a>
               </div>
 
               {site.email && (
-                <div className="border-t border-slate-100 pt-5">
-                  <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Email</p>
+                <div className="border-t border-white/[0.06] pt-5">
+                  <p className="text-xs font-bold uppercase tracking-wide text-white/55">Email</p>
                   <a
                     href={`mailto:${site.email}`}
-                    className="mt-1 block font-medium text-brand-600 hover:underline"
+                    className="mt-1 block font-medium text-[#ffb02e] hover:underline"
                   >
                     {site.email}
                   </a>
-                  <p className="mt-1 text-sm text-slate-500">
+                  <p className="mt-1 text-sm text-white/55">
                     Best for estimates, records, and fleet accounts. For anything urgent, please
                     call.
                   </p>
                 </div>
               )}
 
-              <div className="border-t border-slate-100 pt-5">
-                <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
+              <div className="border-t border-white/[0.06] pt-5">
+                <p className="text-xs font-bold uppercase tracking-wide text-white/55">
                   We accept
                 </p>
-                <p className="mt-1 text-slate-700">{site.payments.join(" · ")}</p>
+                <p className="mt-1 text-white/75">{site.payments.join(" · ")}</p>
               </div>
             </div>
           </div>
 
           {/* Hours + map */}
           <div>
-            <Eyebrow>Hours &amp; location</Eyebrow>
-            <div className="overflow-hidden rounded-2xl border border-slate-200">
+            <Eyebrow tone="light">Hours &amp; location</Eyebrow>
+            <div className="overflow-hidden rounded-2xl border border-white/10">
               <table className="w-full text-sm">
                 <tbody>
                   {site.hours.map((h) => (
-                    <tr key={h.day} className="border-b border-slate-100 last:border-0">
-                      <td className="px-5 py-3 font-semibold text-slate-800">{h.day}</td>
-                      <td className="px-5 py-3 text-right tabular-nums text-slate-600">
+                    <tr key={h.day} className="border-b border-white/[0.06] last:border-0">
+                      <td className="px-5 py-3 font-semibold text-white/90">{h.day}</td>
+                      <td className="px-5 py-3 text-right tabular-nums text-white/60">
                         {h.closed ? (
                           <span className="text-slate-400">Closed</span>
                         ) : (
@@ -125,13 +125,13 @@ export default function ContactPage() {
                   ))}
                 </tbody>
               </table>
-              <div className="border-t border-slate-200 bg-slate-50 px-5 py-4 text-sm leading-relaxed text-slate-600">
+              <div className="border-t border-white/10 bg-[#12100e] px-5 py-4 text-sm leading-relaxed text-white/60">
                 Closed on major holidays. Broken down outside of hours? Leave a message — we check
                 them first thing.
               </div>
             </div>
 
-            <div className="mt-5 overflow-hidden rounded-2xl border border-slate-200">
+            <div className="mt-5 overflow-hidden rounded-2xl border border-white/10">
               <iframe
                 src={mapSrc}
                 title={`Map to ${site.name}`}
@@ -142,20 +142,20 @@ export default function ContactPage() {
               />
             </div>
 
-            <p className="mt-3 text-sm text-slate-500">
+            <p className="mt-3 text-sm text-white/55">
               Serving {site.serviceArea.join(", ")} and nearby communities.
             </p>
           </div>
         </div>
       </section>
 
-      <section className="bg-slate-50 py-16">
+      <section className="bg-[#12100e] py-16">
         <div className="mx-auto max-w-4xl px-5">
-          <Eyebrow>Good to know</Eyebrow>
-          <h2 className="mb-8 text-3xl font-extrabold leading-tight text-slate-900">
+          <Eyebrow tone="light">Good to know</Eyebrow>
+          <h2 className="mb-8 text-3xl font-extrabold leading-tight text-white">
             Before your visit
           </h2>
-          <FaqList items={faqs} />
+          <FaqList items={faqs} tone="dark" />
         </div>
       </section>
 

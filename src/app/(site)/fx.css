@@ -1,0 +1,538 @@
+/*
+ * Joe's Auto Garage — public-site "ignition" effects.
+ *
+ * Imported only by the (site) layout, so none of this reaches the staff app.
+ * Everything here is decoration layered on server-rendered content: with
+ * JavaScript off, or with prefers-reduced-motion set, the page is fully
+ * readable and the animated layers simply never start.
+ */
+
+:root {
+  --ign-bg: #0a0908;
+  --ign-bg-2: #12100e;
+  --ign-amber: #ffb02e;
+  --ign-orange: #ff6a1a;
+  --ign-arc: #7fdcff;
+  --ign-ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Boot states (classes set by the inline script in the site layout) ── */
+
+/* Elements GSAP animates in start hidden — but only once we know it will run. */
+html.fx-on [data-fx="in"],
+html.fx-on [data-reveal] {
+  opacity: 0;
+}
+html.fx-intro {
+  overflow: hidden;
+}
+
+/* ── Type ──────────────────────────────────────────────────────────────── */
+
+.mega {
+  font-family: var(--font-mega);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.005em;
+  line-height: 0.84;
+}
+.text-chrome,
+.text-chrome .chr {
+  background-image: linear-gradient(180deg, #ffffff 0%, #e3e7ec 42%, #8d949d 50%, #f3f5f8 66%, #a2a9b2 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.text-fire,
+.text-fire .chr {
+  background-image: linear-gradient(180deg, #ffe7a8 0%, #ffb02e 38%, #ff6a1a 72%, #c2410c 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+/* Once SplitText has wrapped every glyph, each one carries its own gradient. */
+.text-chrome:has(.chr),
+.text-fire:has(.chr) {
+  background-image: none;
+}
+.chr {
+  display: inline-block;
+  will-change: transform;
+}
+
+/* ── The spark plug (Joe's logo, used as a mask so CSS can paint it) ───── */
+
+.plug {
+  position: relative;
+  aspect-ratio: 433 / 1602;
+}
+.plug-mask {
+  position: absolute;
+  inset: 0;
+  -webkit-mask: url(/brand/joes-spark-plug.svg) center / 100% 100% no-repeat;
+  mask: url(/brand/joes-spark-plug.svg) center / 100% 100% no-repeat;
+}
+.plug-chrome {
+  background-image: linear-gradient(
+    96deg,
+    #8b929b 0%,
+    #eef1f5 16%,
+    #ffffff 24%,
+    #a6adb6 38%,
+    #f4f6f9 54%,
+    #c9ced5 70%,
+    #ffffff 82%,
+    #8e959e 100%
+  );
+}
+.plug-shine {
+  background-image: linear-gradient(115deg, transparent 42%, rgba(255, 255, 255, 0.95) 50%, transparent 58%);
+  background-size: 260% 260%;
+  background-position: 120% 120%;
+  mix-blend-mode: overlay;
+  animation: plug-shine 6s var(--ign-ease) infinite;
+}
+@keyframes plug-shine {
+  0% {
+    background-position: 120% 120%;
+  }
+  38%,
+  100% {
+    background-position: -20% -20%;
+  }
+}
+.plug-glow {
+  position: absolute;
+  inset: -1.5%;
+  filter: blur(16px);
+  opacity: 0.55;
+}
+.plug-glow > .plug-mask {
+  background-image: linear-gradient(180deg, var(--ign-arc) 0%, #ffffff 40%, var(--ign-amber) 70%, var(--ign-orange) 100%);
+}
+/* Exploded view: three copies of the plug, each clipped to one band. */
+.plug-part {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+.plug-part[data-part="top"] {
+  clip-path: inset(0 0 45.6% 0);
+}
+.plug-part[data-part="mid"] {
+  clip-path: inset(54.3% 0 27.4% 0);
+}
+.plug-part[data-part="bottom"] {
+  clip-path: inset(72.5% 0 0 0);
+}
+
+/* Electric arc overlay + the hot spot at the electrode tip (57%, 95.8%). */
+.plug-arc {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  filter: drop-shadow(0 0 3px var(--ign-arc)) drop-shadow(0 0 12px rgba(127, 220, 255, 0.85));
+}
+.plug-tip {
+  position: absolute;
+  left: 57%;
+  top: 95.8%;
+  width: 46%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(127, 220, 255, 0.55) 18%, rgba(255, 176, 46, 0.22) 42%, transparent 68%);
+  mix-blend-mode: screen;
+  pointer-events: none;
+  animation: tip-breathe 2.4s ease-in-out infinite;
+}
+@keyframes tip-breathe {
+  0%,
+  100% {
+    opacity: 0.55;
+    scale: 0.85;
+  }
+  50% {
+    opacity: 1;
+    scale: 1.1;
+  }
+}
+
+/* ── Hero ──────────────────────────────────────────────────────────────── */
+
+.ign-hero {
+  background:
+    radial-gradient(1100px 620px at 78% 62%, rgba(255, 106, 26, 0.13), transparent 62%),
+    radial-gradient(900px 520px at 12% 18%, rgba(127, 220, 255, 0.07), transparent 60%),
+    var(--ign-bg);
+}
+/* Retro perspective shop floor that rolls toward you. */
+.ign-floor {
+  position: absolute;
+  inset: auto -30% -2px -30%;
+  height: 46%;
+  background-image:
+    linear-gradient(rgba(255, 176, 46, 0.32) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 176, 46, 0.22) 1px, transparent 1px);
+  background-size: 64px 64px;
+  transform: perspective(420px) rotateX(64deg);
+  transform-origin: 50% 100%;
+  -webkit-mask-image: linear-gradient(to top, #000 10%, transparent 92%);
+  mask-image: linear-gradient(to top, #000 10%, transparent 92%);
+  animation: floor-roll 2.6s linear infinite;
+  pointer-events: none;
+}
+@keyframes floor-roll {
+  to {
+    background-position: 0 64px, 0 0;
+  }
+}
+.hero-flash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 70% 60%, rgba(220, 245, 255, 0.95), rgba(127, 220, 255, 0.4) 35%, transparent 70%);
+  opacity: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+.scroll-cue {
+  position: relative;
+  width: 2px;
+  height: 56px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.12);
+}
+.scroll-cue::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: -40%;
+  width: 100%;
+  height: 40%;
+  background: linear-gradient(to bottom, transparent, var(--ign-amber));
+  animation: cue-drop 1.6s var(--ign-ease) infinite;
+}
+@keyframes cue-drop {
+  to {
+    top: 110%;
+  }
+}
+
+/* ── Buttons ───────────────────────────────────────────────────────────── */
+
+.btn-ignite {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  overflow: hidden;
+  border-radius: 0.9rem;
+  padding: 0.95rem 1.6rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  color: #120c05;
+  background: linear-gradient(180deg, #ffd27a 0%, var(--ign-amber) 45%, var(--ign-orange) 100%);
+  box-shadow:
+    0 0 0 1px rgba(255, 220, 160, 0.5) inset,
+    0 10px 30px -8px rgba(255, 106, 26, 0.7),
+    0 0 40px -6px rgba(255, 176, 46, 0.45);
+  transition: box-shadow 0.3s var(--ign-ease);
+}
+.btn-ignite::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, 0.75) 50%, transparent 65%);
+  translate: -120% 0;
+  transition: translate 0.7s var(--ign-ease);
+}
+.btn-ignite:hover::before {
+  translate: 120% 0;
+}
+.btn-ignite:hover {
+  box-shadow:
+    0 0 0 1px rgba(255, 230, 180, 0.8) inset,
+    0 14px 40px -6px rgba(255, 106, 26, 0.9),
+    0 0 70px -4px rgba(255, 176, 46, 0.7);
+}
+.btn-ghost-ign {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  border-radius: 0.9rem;
+  padding: 0.95rem 1.6rem;
+  font-weight: 700;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(6px);
+  transition:
+    border-color 0.3s,
+    background-color 0.3s;
+}
+.btn-ghost-ign:hover {
+  border-color: rgba(127, 220, 255, 0.6);
+  background: rgba(127, 220, 255, 0.08);
+}
+
+/* ── Caution-tape service ticker ───────────────────────────────────────── */
+
+.tape {
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+  border-block: 6px solid transparent;
+  border-image: repeating-linear-gradient(-45deg, var(--ign-amber) 0 14px, #111 14px 28px) 6;
+}
+.tape-track {
+  display: inline-flex;
+  will-change: transform;
+}
+.tape-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding-inline: 0.75rem 1.25rem;
+}
+
+/* ── Spotlight service cards ───────────────────────────────────────────── */
+
+.spot-card {
+  position: relative;
+  isolation: isolate;
+  border-radius: 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.015));
+  transform-style: preserve-3d;
+  transition:
+    filter 0.35s,
+    border-color 0.3s;
+}
+/* (::before is taken by .svc-card's corner wash, which these cards reuse.) */
+.spot-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: radial-gradient(280px circle at var(--mx, 50%) var(--my, 50%), rgba(255, 200, 110, 0.95), rgba(127, 220, 255, 0.45) 40%, transparent 70%);
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+.spot-card:hover::after,
+.spot-card:focus-visible::after {
+  opacity: 1;
+}
+.spot-grid:hover .spot-card:not(:hover) {
+  filter: brightness(0.55) saturate(0.5);
+}
+
+/* Steps dim until the plug reaches them (only when the animation is running). */
+@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+  html.fx-on .step-block {
+    opacity: 0.35;
+    transition: opacity 0.5s;
+  }
+  html.fx-on .step-block.is-active {
+    opacity: 1;
+  }
+}
+
+/* ── Neon OPEN sign ────────────────────────────────────────────────────── */
+
+.neon {
+  font-family: var(--font-mega);
+  font-weight: 800;
+  color: #fff6f0;
+  text-shadow:
+    0 0 3px #fff,
+    0 0 10px var(--neon, #ff4d2e),
+    0 0 24px var(--neon, #ff4d2e),
+    0 0 56px var(--neon, #ff4d2e),
+    0 0 90px var(--neon, #ff4d2e);
+}
+.neon.is-off {
+  color: #2f2925;
+  text-shadow: none;
+}
+.neon-flicker {
+  animation: neon-flicker 7s infinite;
+}
+@keyframes neon-flicker {
+  0%,
+  18%,
+  20.5%,
+  23%,
+  57%,
+  59%,
+  100% {
+    opacity: 1;
+  }
+  19%,
+  22%,
+  58% {
+    opacity: 0.3;
+  }
+}
+.neon-tube {
+  border-radius: 1.5rem;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  box-shadow:
+    0 0 6px #fff,
+    0 0 18px var(--neon, #ff4d2e),
+    inset 0 0 18px var(--neon, #ff4d2e),
+    0 0 50px var(--neon, #ff4d2e);
+}
+.neon-tube.is-off {
+  border-color: #2f2925;
+  box-shadow: none;
+}
+
+/* ── Photo-inspection phone ────────────────────────────────────────────── */
+
+.scanline {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--ign-arc), transparent);
+  box-shadow: 0 0 18px 4px rgba(127, 220, 255, 0.45);
+  animation: scan 3.2s var(--ign-ease) infinite;
+  pointer-events: none;
+}
+@keyframes scan {
+  0% {
+    top: 0%;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
+}
+
+/* Inside a plug mask the beam becomes a thick band that lights the metal. */
+.plug-mask > .scanline {
+  height: 14%;
+  background: linear-gradient(180deg, transparent, rgba(127, 220, 255, 0.95) 50%, transparent);
+  box-shadow: none;
+}
+
+/* ── Wheel bearing (shop tip illustration) ─────────────────────────────── */
+
+.bearing-cage {
+  transform-origin: 60px 60px;
+  animation: spin 9s linear infinite;
+}
+.bearing-inner {
+  transform-origin: 60px 60px;
+  animation: spin 4.5s linear infinite reverse;
+}
+@keyframes spin {
+  to {
+    rotate: 360deg;
+  }
+}
+
+/* ── Scroll fuse (reading progress) ────────────────────────────────────── */
+
+.fuse {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 60;
+  height: 3px;
+  pointer-events: none;
+}
+.fuse-burn {
+  height: 100%;
+  transform-origin: left;
+  transform: scaleX(var(--p, 0));
+  background: linear-gradient(90deg, #7a2a0c, var(--ign-orange), var(--ign-amber));
+}
+.fuse-head {
+  position: absolute;
+  top: 50%;
+  left: calc(var(--p, 0) * 100%);
+  width: 10px;
+  height: 10px;
+  translate: -50% -50%;
+  border-radius: 9999px;
+  background: #fff;
+  box-shadow:
+    0 0 6px 2px var(--ign-amber),
+    0 0 18px 6px rgba(255, 106, 26, 0.7);
+  opacity: var(--on, 0);
+  transition: opacity 0.3s;
+}
+
+/* ── Roll-up garage door intro (home page, once per visit) ─────────────── */
+
+.door {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: none;
+  cursor: pointer;
+}
+html.fx-intro .door {
+  display: block;
+}
+.door-panel {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent 30%),
+    repeating-linear-gradient(180deg, #34302c 0 54px, #24211e 54px 58px, #3d3833 58px 60px),
+    #2b2825;
+  box-shadow: inset 0 -30px 60px -20px rgba(0, 0, 0, 0.6);
+  will-change: transform;
+}
+.door-gap {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 0;
+  background: linear-gradient(to top, rgba(255, 196, 120, 0.95), rgba(255, 140, 40, 0.45) 40%, transparent);
+  box-shadow: 0 0 80px 30px rgba(255, 150, 60, 0.35);
+}
+
+/* ── Reduced motion: every effect off, content stays put ───────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  html.fx-on [data-fx="in"],
+  html.fx-on [data-reveal] {
+    opacity: 1;
+  }
+  html.fx-intro .door {
+    display: none;
+  }
+  .plug-shine,
+  .plug-tip,
+  .ign-floor,
+  .scroll-cue::after,
+  .neon-flicker,
+  .scanline,
+  .bearing-cage,
+  .bearing-inner {
+    animation: none;
+  }
+  .btn-ignite::before {
+    display: none;
+  }
+}

@@ -16,8 +16,9 @@ export const site = {
   url: process.env.NEXT_PUBLIC_SITE_URL || "https://joesgarage.com",
 
   /** Business name — must match the Google Business Profile character for character. */
-  name: "Joe's Garage",
-  legalName: "Joe's Garage", // «FILL IN» if the registered/LLC name differs
+  /** As written on the shop's own Facebook page. */
+  name: "Joe's Auto Garage",
+  legalName: "Joe's Auto Garage", // «FILL IN» if the registered/LLC name differs
   tagline: "Honest auto repair, done right the first time",
   shortDescription:
     "ASE Master Certified auto repair in Helena, Montana — diagnostics, brakes, oil changes, A/C, engine and transmission work for every make and model.",
@@ -25,12 +26,12 @@ export const site = {
   phone: "(406) 577-6663",
   /** Same number, digits only, for tap-to-call links. */
   phoneHref: "+14065776663",
-  /** «FILL IN» — left blank on purpose; the email block is hidden until it's set. */
-  email: "",
+  /** From the shop's Facebook page contact info. */
+  email: "joesautogarage406@gmail.com",
 
   /** Street address — write it exactly as it appears on the mailbox. */
   address: {
-    street: "2810 N Cook",
+    street: "2810 N Cooke St", // as listed on the shop's Facebook page
     city: "Helena",
     state: "MT",
     zip: "", // «FILL IN» — 59601 or 59602; must match the Google listing exactly
@@ -82,7 +83,7 @@ export const site = {
    */
   profiles: {
     google: "", // your Google Business Profile / Maps share link
-    facebook: "",
+    facebook: "https://www.facebook.com/p/Joes-Auto-Garage-61593974189103/",
     yelp: "",
     instagram: "",
   },
@@ -111,6 +112,19 @@ export const site = {
    * claims a founding year we haven't confirmed. The About page adapts.
    */
   foundedYear: null as number | null,
+
+  /** IANA time zone the hours above are in — drives the live OPEN/CLOSED sign. */
+  timeZone: "America/Denver",
+
+  /**
+   * Joe's own maintenance tip, quoted word for word from the shop's Facebook
+   * page. Swap in a new one whenever he posts another.
+   */
+  shopTip: {
+    title: "Check those wheel bearings",
+    quote:
+      "Just a friendly reminder that some of your older vehicles still have serviceable wheel bearings. Don’t forget to have those checked every oil change!",
+  },
 } as const;
 
 export type Service = {

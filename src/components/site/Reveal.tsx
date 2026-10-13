@@ -32,7 +32,9 @@ function useInView<T extends HTMLElement>() {
           io.disconnect(); // one-shot: never re-hide content
         }
       },
-      { threshold: 0.12, rootMargin: "0px 0px -8% 0px" },
+      // Threshold 0: a tall group (a stacked card list on a phone) can never be
+      // 12% visible at once, which used to leave it blank until scrolled.
+      { threshold: 0, rootMargin: "0px 0px -8% 0px" },
     );
 
     io.observe(el);

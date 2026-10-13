@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { site } from "@/lib/site-config";
+import { BrandMark } from "./BrandMark";
 
 const NAV = [
   { href: "/services", label: "Services" },
@@ -14,13 +15,10 @@ export function SiteHeader() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-slate-950/90 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3">
-        <Link href="/" className="group flex items-center gap-2.5" onClick={() => setOpen(false)}>
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-accent-300 to-accent-500 font-display text-base font-bold text-slate-900 shadow-lg ring-1 ring-accent-200/40 transition-transform duration-200 group-hover:rotate-[-6deg]">
-            JG
-          </span>
-          <span className="font-script text-4xl leading-none text-white">{site.name}</span>
+    <header className="sticky top-0 z-50 border-b border-white/[0.07] bg-[#0a0908]/80 backdrop-blur-xl">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-2.5">
+        <Link href="/" className="group" onClick={() => setOpen(false)} aria-label={`${site.name} home`}>
+          <BrandMark />
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
@@ -33,11 +31,20 @@ export function SiteHeader() {
               {n.label}
             </Link>
           ))}
-          <a href={`tel:${site.phoneHref}`} className="btn-accent ml-2 !rounded-lg">
+          <a href={`tel:${site.phoneHref}`} className="btn-ignite ml-3 !rounded-xl !px-4 !py-2 text-sm">
             {site.phone}
           </a>
         </nav>
 
+        <a
+          href={`tel:${site.phoneHref}`}
+          aria-label={`Call ${site.phone}`}
+          className="btn-ignite ml-auto !rounded-xl !p-0 h-10 w-10 md:hidden"
+        >
+          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z" />
+          </svg>
+        </a>
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
@@ -66,7 +73,7 @@ export function SiteHeader() {
                 {n.label}
               </Link>
             ))}
-            <a href={`tel:${site.phoneHref}`} className="btn-accent mt-2 w-full justify-center">
+            <a href={`tel:${site.phoneHref}`} className="btn-ignite mt-2 w-full">
               Call {site.phone}
             </a>
           </nav>

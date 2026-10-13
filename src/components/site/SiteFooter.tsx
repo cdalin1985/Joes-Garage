@@ -1,21 +1,17 @@
 import Link from "next/link";
 import { site, services, groupedHours, fullAddress, mapsDirectionsUrl } from "@/lib/site-config";
+import { BrandMark } from "./BrandMark";
 
 export function SiteFooter() {
   const hours = groupedHours();
   const profiles = Object.entries(site.profiles).filter(([, url]) => url);
 
   return (
-    <footer className="border-t border-white/10 bg-slate-950 text-slate-400">
+    <footer className="border-t border-white/[0.07] bg-[#070605] text-slate-400">
       <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 md:grid-cols-4">
         {/* Name, address, phone — the exact block Google cross-checks. */}
         <div className="md:col-span-2">
-          <div className="flex items-center gap-2.5">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-accent-300 to-accent-500 font-display text-base font-bold text-slate-900">
-              JG
-            </span>
-            <span className="font-script text-4xl leading-none text-white">{site.name}</span>
-          </div>
+          <BrandMark size="lg" />
           <p className="mt-4 max-w-sm text-sm leading-relaxed">{site.tagline}.</p>
 
           <address className="mt-5 space-y-1 text-sm not-italic">
@@ -64,7 +60,7 @@ export function SiteFooter() {
         </div>
 
         <div>
-          <p className="mb-3 text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Services</p>
+          <p className="mb-3 text-xs font-bold uppercase tracking-[0.14em] text-slate-400">Services</p>
           <ul className="space-y-1.5 text-sm">
             {services.slice(0, 7).map((s) => (
               <li key={s.slug}>
@@ -82,7 +78,7 @@ export function SiteFooter() {
         </div>
 
         <div>
-          <p className="mb-3 text-xs font-bold uppercase tracking-[0.14em] text-slate-500">Hours</p>
+          <p className="mb-3 text-xs font-bold uppercase tracking-[0.14em] text-slate-400">Hours</p>
           <table className="w-full text-sm">
             <tbody>
               {hours.map((h) => (
@@ -104,7 +100,7 @@ export function SiteFooter() {
           <p>
             © {new Date().getFullYear()} {site.legalName} · {fullAddress}
           </p>
-          <Link href="/login" className="text-slate-500 hover:text-slate-300">
+          <Link href="/login" className="text-slate-400 hover:text-slate-300">
             Staff sign-in
           </Link>
         </div>
