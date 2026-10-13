@@ -7,9 +7,11 @@ import { IconPlus, IconCar } from "@/components/icons";
 import { customerName } from "@/lib/display";
 import { vehicleName, vehicleSubtitle } from "@/lib/display";
 import { formatCurrency, formatDate } from "@/lib/format";
-import { INVOICE_STATUS, ESTIMATE_STATUS, WORK_ORDER_STATUS } from "@/lib/constants";
+import { INVOICE_STATUS, ESTIMATE_STATUS, WORK_ORDER_STATUS, COMMUNICATION_TYPES } from "@/lib/constants";
 import { deleteCustomer } from "@/lib/actions/customers";
-import type { Customer, Vehicle, Invoice, Estimate, WorkOrder } from "@/lib/database.types";
+import { logCommunication, deleteCommunication } from "@/lib/actions/communications";
+import { formatDateTime } from "@/lib/format";
+import type { Customer, Vehicle, Invoice, Estimate, WorkOrder, CustomerCommunication } from "@/lib/database.types";
 
 export const dynamic = "force-dynamic";
 
@@ -17,13 +19,19 @@ export default async function CustomerDetailPage({ params }: { params: { id: str
   const supabase = createClient();
   const id = params.id;
 
-  const [{ data: customer }, { data: vehicles }, { data: invoices }, { data: estimates }, { data: workOrders }] =
+  const [{ data: customer }, { data: vehicles }, { data: invoices }, { data: estimates }, { data: workOrders }, { data: comms }] =
     await Promise.all([
       supabase.from("customers").select("*").eq("id", id).single(),
       supabase.from("vehicles").select("*").eq("customer_id", id).order("created_at", { ascending: false }),
       supabase.from("invoices").select("*").eq("customer_id", id).order("issue_date", { ascending: false }),
       supabase.from("estimates").select("*").eq("customer_id", id).order("issue_date", { ascending: false }),
       supabase.from("work_orders").select("*").eq("customer_id", id).order("created_at", { ascending: false }),
+      supabase
+        .from("customer_communications")
+        .select("*")
+        .eq("customer_id", id)
+        .order("created_at", { ascending: false })
+        .limit(25),
     ]);
 
   if (!customer) notFound();
@@ -32,11 +40,17 @@ export default async function CustomerDetailPage({ params }: { params: { id: str
   const invs = (invoices as Invoice[]) ?? [];
   const ests = (estimates as Estimate[]) ?? [];
   const wos = (workOrders as WorkOrder[]) ?? [];
+  const communications = (comms as CustomerCommunication[]) ?? [];
 
-  const lifetimeValue = invs
-    .filter((i) => i.status !== "void")
-    .reduce((sum, i) => sum + (i.amount_paid ?? 0), 0);
+  const paidInvoices = invs.filter((i) => i.status !== "void");
+  const lifetimeValue = paidInvoices.reduce((sum, i) => sum + (i.amount_paid ?? 0), 0);
   const openBalance = invs.reduce((sum, i) => sum + (i.balance_due ?? 0), 0);
+  const avgInvoice = paidInvoices.length > 0 ? lifetimeValue / paidInvoices.length : 0;
+  const lastVisit = [...invs, ...wos]
+    .map((r) => ("issue_date" in r ? r.issue_date : r.created_at))
+    .filter(Boolean)
+    .sort()
+    .at(-1);
 
   return (
     <div>
@@ -92,6 +106,14 @@ export default async function CustomerDetailPage({ params }: { params: { id: str
               <p className={`mt-1 text-xl font-bold ${openBalance > 0 ? "text-red-600" : "text-slate-900"}`}>
                 {formatCurrency(openBalance)}
               </p>
+            </Card>
+            <Card>
+              <p className="text-xs uppercase text-slate-500">Avg. invoice</p>
+              <p className="mt-1 text-xl font-bold text-slate-900">{formatCurrency(avgInvoice)}</p>
+            </Card>
+            <Card>
+              <p className="text-xs uppercase text-slate-500">Last visit</p>
+              <p className="mt-1 text-xl font-bold text-slate-900">{lastVisit ? formatDate(lastVisit) : "—"}</p>
             </Card>
           </div>
         </div>
@@ -188,6 +210,53 @@ export default async function CustomerDetailPage({ params }: { params: { id: str
               )}
             </Card>
           </div>
+
+          <Card>
+            <SectionTitle>Communications log</SectionTitle>
+            <form action={logCommunication.bind(null, id)} className="mb-4 grid gap-2 sm:grid-cols-[auto_auto_1fr_auto]">
+              <select name="type" defaultValue="call" className="input !py-1.5 text-sm">
+                {Object.entries(COMMUNICATION_TYPES).map(([v, l]) => (
+                  <option key={v} value={v}>
+                    {l}
+                  </option>
+                ))}
+              </select>
+              <select name="direction" defaultValue="outbound" className="input !py-1.5 text-sm">
+                <option value="outbound">Outbound</option>
+                <option value="inbound">Inbound</option>
+              </select>
+              <input
+                name="summary"
+                placeholder="What was discussed…"
+                required
+                className="input !py-1.5 text-sm"
+              />
+              <button className="btn-secondary !py-1.5 text-xs">Log it</button>
+            </form>
+            {communications.length === 0 ? (
+              <p className="py-3 text-center text-sm text-slate-400">No contact logged yet.</p>
+            ) : (
+              <ul className="divide-y divide-slate-100">
+                {communications.map((cm) => (
+                  <li key={cm.id} className="flex items-start justify-between gap-3 py-2.5 text-sm">
+                    <div>
+                      <span className="font-medium text-slate-700">{COMMUNICATION_TYPES[cm.type]}</span>
+                      <span className="ml-1.5 text-xs text-slate-400">
+                        {cm.direction === "inbound" ? "from customer" : "to customer"} · {formatDateTime(cm.created_at)}
+                      </span>
+                      <p className="mt-0.5 text-slate-600">{cm.summary}</p>
+                    </div>
+                    <DeleteButton
+                      action={deleteCommunication.bind(null, cm.id, id)}
+                      iconOnly
+                      confirmText="Delete this log entry?"
+                      className="btn-ghost text-slate-400"
+                    />
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Card>
         </div>
       </div>
     </div>

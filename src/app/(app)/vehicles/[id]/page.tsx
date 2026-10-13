@@ -38,6 +38,9 @@ export default async function VehicleDetailPage({ params }: { params: { id: stri
         backHref={v.customer_id ? `/customers/${v.customer_id}` : "/vehicles"}
         actions={
           <>
+            <Link href={`/vehicles/${v.id}/history`} className="btn-secondary">
+              Print history
+            </Link>
             <Link href={`/work-orders/new?vehicle=${v.id}`} className="btn-secondary">
               New work order
             </Link>
