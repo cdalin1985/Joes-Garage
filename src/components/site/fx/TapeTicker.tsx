@@ -60,7 +60,7 @@ export function TapeTicker({ items }: { items: string[] }) {
 
   return (
     <div ref={root} className="relative z-10 -my-6 overflow-hidden py-10" aria-label="Services">
-      <div className="tape -rotate-[2.5deg] bg-[#ffb02e] py-3 text-[#120c05] shadow-[0_20px_40px_-12px_rgba(0,0,0,0.6)]">
+      <div className="tape -rotate-[2.5deg] bg-[#d40f17] py-3 text-white shadow-[0_20px_40px_-12px_rgba(0,0,0,0.6)]">
         <div className="tape-track mega text-3xl sm:text-4xl">
           {run}
           <span aria-hidden="true" className="contents">

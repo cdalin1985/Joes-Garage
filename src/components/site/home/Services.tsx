@@ -27,15 +27,15 @@ export function Services() {
           <Link
             key={s.slug}
             href={`/services/${s.slug}`}
-            className="spot-card svc-card flex flex-col p-7 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ffb02e]/70"
+            className="spot-card svc-card flex flex-col p-7 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ff3b3f]/70"
           >
-            <span className="ico-chip mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#ffd27a] to-[#ff8a1a] text-[#2a1305] shadow-[0_8px_24px_-8px_rgba(255,140,40,0.7)]">
+            <span className="ico-chip mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#ff4a4f] to-[#b3060e] text-white shadow-[0_8px_24px_-8px_rgba(227,18,27,0.75)]">
               <ServiceIcon slug={s.slug} name={s.name} />
             </span>
             <h3 className="font-display text-xl font-bold leading-snug text-white">{s.name}</h3>
             <span className="svc-rule mb-3 mt-2.5" />
             <p className="flex-1 text-sm leading-relaxed text-white/55">{s.blurb}</p>
-            <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-[#ffb02e]">
+            <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-[#ff3b3f]">
               Learn more <span className="svc-arrow">→</span>
             </span>
           </Link>

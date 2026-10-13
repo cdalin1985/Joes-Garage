@@ -150,7 +150,7 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
               <Link
                 key={s.slug}
                 href={`/services/${s.slug}`}
-                className="rounded-full border border-white/20 bg-white/[0.04] px-4 py-2 text-sm font-semibold text-white/75 transition hover:border-[#ffb02e]/60 hover:bg-white/[0.08] hover:text-[#ffd27a]"
+                className="rounded-full border border-white/20 bg-white/[0.04] px-4 py-2 text-sm font-semibold text-white/75 transition hover:border-[#ff3b3f]/60 hover:bg-white/[0.08] hover:text-[#ff8a8d]"
               >
                 {s.name}
               </Link>

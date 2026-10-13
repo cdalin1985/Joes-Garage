@@ -35,9 +35,9 @@ export default function ServicesPage() {
               <Link
                 key={s.slug}
                 href={`/services/${s.slug}`}
-                className="svc-card flex flex-col rounded-2xl border border-white/10 bg-white/[0.04] p-6 hover:border-[#ffb02e]/50 hover:shadow-lift"
+                className="svc-card flex flex-col rounded-2xl border border-white/10 bg-white/[0.04] p-6 hover:border-[#ff3b3f]/50 hover:shadow-lift"
               >
-                <span className="ico-chip mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#ffd27a] to-[#ff8a1a] text-[#2a1305] shadow-[0_8px_24px_-8px_rgba(255,140,40,0.7)]">
+                <span className="ico-chip mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[#ff4a4f] to-[#b3060e] text-white shadow-[0_8px_24px_-8px_rgba(227,18,27,0.75)]">
                   <ServiceIcon slug={s.slug} name={s.name} />
                 </span>
                 <h2 className="font-display text-lg font-bold leading-snug text-white">
@@ -45,7 +45,7 @@ export default function ServicesPage() {
                 </h2>
                 <span className="svc-rule mb-2.5 mt-2" />
                 <p className="flex-1 text-sm leading-relaxed text-white/60">{s.blurb}</p>
-                <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-[#ffb02e]">
+                <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-[#ff3b3f]">
                   Learn more
                   <span className="svc-arrow">→</span>
                 </span>

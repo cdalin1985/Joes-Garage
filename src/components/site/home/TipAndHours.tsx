@@ -20,7 +20,7 @@ export function TipAndHours() {
           <WheelBearing className="pointer-events-none absolute -right-10 -top-10 h-56 w-56 opacity-80 sm:h-64 sm:w-64" />
           <SectionEyebrow>Straight from Joe</SectionEyebrow>
           <p className="mega max-w-[12ch] text-5xl text-white sm:text-6xl">{site.shopTip.title}</p>
-          <blockquote className="relative mt-8 flex-1 border-l-2 border-[#ffb02e] pl-5 text-lg leading-relaxed text-white/75 sm:text-xl">
+          <blockquote className="relative mt-8 flex-1 border-l-2 border-[#ff3b3f] pl-5 text-lg leading-relaxed text-white/75 sm:text-xl">
             &ldquo;{site.shopTip.quote}&rdquo;
           </blockquote>
           <figcaption className="mt-8 text-sm text-white/55">

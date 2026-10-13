@@ -124,7 +124,7 @@ export default function AboutPage() {
           <p className="mt-8 max-w-2xl leading-relaxed text-white/60">
             Have a question about a repair, a second opinion, or whether a car is worth
             fixing?{" "}
-            <Link href="/contact" className="font-semibold text-[#ffb02e] hover:underline">
+            <Link href="/contact" className="font-semibold text-[#ff3b3f] hover:underline">
               Get in touch
             </Link>{" "}
             — we&apos;re happy to talk it through before you commit to anything.
