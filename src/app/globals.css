@@ -6,6 +6,7 @@
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-display: "Space Grotesk", var(--font-sans);
   --font-script: "Tangerine", "Segoe Script", cursive;
+  --font-mega: "Big Shoulders Display", Impact, "Arial Narrow", sans-serif;
 }
 
 @layer base {
@@ -152,5 +153,245 @@
   }
   .animate-rise {
     animation: none !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MOTION SYSTEM (public marketing site)
+   CSS-driven so the pages stay static and fast — speed is a ranking factor.
+   Everything below is disabled for visitors who prefer reduced motion.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@layer components {
+  :root {
+    --ease-out-soft: cubic-bezier(0.16, 0.84, 0.44, 1);
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --dur-micro: 220ms;
+    --dur-reveal: 620ms;
+  }
+
+  /* ── Scroll reveal ─────────────────────────────────────────────────────── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    transition:
+      opacity var(--dur-reveal) var(--ease-out-soft),
+      transform var(--dur-reveal) var(--ease-out-soft);
+    will-change: opacity, transform;
+  }
+  .reveal.is-in {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Staggers direct children as the group scrolls into view. */
+  .reveal-group > * {
+    opacity: 0;
+    transform: translateY(22px) scale(0.98);
+    transition:
+      opacity var(--dur-reveal) var(--ease-out-soft),
+      transform var(--dur-reveal) var(--ease-out-soft);
+    will-change: opacity, transform;
+  }
+  .reveal-group.is-in > * {
+    opacity: 1;
+    transform: none;
+  }
+  .reveal-group.is-in > *:nth-child(1)  { transition-delay: 0ms; }
+  .reveal-group.is-in > *:nth-child(2)  { transition-delay: 70ms; }
+  .reveal-group.is-in > *:nth-child(3)  { transition-delay: 140ms; }
+  .reveal-group.is-in > *:nth-child(4)  { transition-delay: 190ms; }
+  .reveal-group.is-in > *:nth-child(5)  { transition-delay: 240ms; }
+  .reveal-group.is-in > *:nth-child(6)  { transition-delay: 290ms; }
+  .reveal-group.is-in > *:nth-child(7)  { transition-delay: 335ms; }
+  .reveal-group.is-in > *:nth-child(8)  { transition-delay: 375ms; }
+  .reveal-group.is-in > *:nth-child(9)  { transition-delay: 415ms; }
+  .reveal-group.is-in > *:nth-child(10) { transition-delay: 450ms; }
+  .reveal-group.is-in > *:nth-child(11) { transition-delay: 485ms; }
+  .reveal-group.is-in > *:nth-child(12) { transition-delay: 515ms; }
+
+  /* ── Card grid: the whole grid reacts when you move between cards ─────── */
+  .svc-grid > * {
+    transition:
+      opacity var(--dur-micro) ease,
+      filter var(--dur-micro) ease,
+      transform 380ms var(--ease-out-soft),
+      box-shadow 380ms var(--ease-out-soft),
+      border-color var(--dur-micro) ease;
+  }
+  /* Once the grid is being used, drop the entrance stagger so hover is instant. */
+  .svc-grid:hover > * {
+    transition-delay: 0ms !important;
+  }
+  /* Siblings recede so the hovered card reads as lifted off the page. */
+  .svc-grid:hover > *:not(:hover) {
+    opacity: 0.62;
+    filter: saturate(0.65);
+    transform: scale(0.985);
+  }
+
+  .svc-card {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+  }
+  .svc-card:hover {
+    transform: translateY(-6px);
+  }
+  /* Warm wash that grows out of the corner mark on hover. */
+  .svc-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 3.5rem;
+    height: 3.5rem;
+    z-index: -1;
+    background: radial-gradient(circle at top right, rgba(230, 188, 100, 0.55), transparent 70%);
+    transition: transform 620ms var(--ease-out-soft), opacity 380ms ease;
+    transform-origin: top right;
+  }
+  .svc-card:hover::before {
+    transform: scale(9);
+    opacity: 0.9;
+  }
+  /* Rule under the title draws left-to-right. */
+  .svc-rule {
+    display: block;
+    height: 2px;
+    width: 100%;
+    transform: scaleX(0);
+    transform-origin: left;
+    background: linear-gradient(90deg, theme("colors.brand.500"), theme("colors.accent.400"));
+    transition: transform 480ms var(--ease-out-soft);
+  }
+  .svc-card:hover .svc-rule {
+    transform: scaleX(1);
+  }
+  .svc-arrow {
+    display: inline-block;
+    transition: transform 320ms var(--ease-spring);
+  }
+  .svc-card:hover .svc-arrow {
+    transform: translateX(6px);
+  }
+
+  /* ── Icon chip + per-service graphic morphs ───────────────────────────── */
+  .ico-chip {
+    transition:
+      transform 520ms var(--ease-spring),
+      background-color var(--dur-micro) ease,
+      color var(--dur-micro) ease,
+      box-shadow 380ms ease;
+  }
+  .svc-card:hover .ico-chip {
+    transform: translateY(-2px) rotate(-8deg) scale(1.08);
+    box-shadow: 0 10px 24px -10px rgba(196, 85, 47, 0.55);
+  }
+  /* Sub-parts of each SVG animate independently — the "morph". */
+  .ico-part {
+    transform-box: view-box;
+    transition:
+      transform 620ms var(--ease-spring),
+      opacity 380ms ease,
+      stroke-dashoffset 700ms var(--ease-out-soft);
+  }
+  .svc-card:hover .ico-spin      { transform: rotate(120deg); transform-origin: 12px 12px; }
+  .svc-card:hover .ico-spin-half { transform: rotate(180deg); transform-origin: 12px 12px; }
+  .svc-card:hover .ico-needle    { transform: rotate(78deg);  transform-origin: 12px 17px; }
+  .svc-card:hover .ico-drop      { transform: translateY(1.5px) scaleY(1.06); transform-origin: 12px 21px; }
+  .svc-card:hover .ico-drip      { opacity: 1; transform: translateY(4px); }
+  .svc-card:hover .ico-squish    { transform: scaleY(0.72); transform-origin: 12px 19px; }
+  .svc-card:hover .ico-slide     { transform: translateX(3px); }
+  .svc-card:hover .ico-lift      { transform: translateY(-3.5px); }
+  .svc-card:hover .ico-zoom      { transform: translate(-1px, -1px) scale(1.14); transform-origin: 10px 10px; }
+  /* Drawn strokes stay visible at rest and re-draw on hover — an icon that is
+     invisible until you touch it just looks broken. */
+  .ico-draw {
+    stroke-dasharray: 26;
+    stroke-dashoffset: 0;
+  }
+  .svc-card:hover .ico-draw {
+    animation: ico-redraw 640ms var(--ease-out-soft);
+  }
+  @keyframes ico-redraw {
+    from { stroke-dashoffset: 26; }
+    to   { stroke-dashoffset: 0; }
+  }
+  .ico-drip  { opacity: 0; }
+
+  /* ── Status dots (inspection band) ────────────────────────────────────── */
+  .pulse-dot {
+    position: relative;
+  }
+  .pulse-dot::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 9999px;
+    background: inherit;
+    animation: dot-pulse 2.6s var(--ease-out-soft) infinite;
+  }
+  .pulse-dot:nth-child(2)::after { animation-delay: 0.4s; }
+  @keyframes dot-pulse {
+    0%   { transform: scale(1);   opacity: 0.65; }
+    70%  { transform: scale(2.4); opacity: 0; }
+    100% { transform: scale(2.4); opacity: 0; }
+  }
+
+  /* Row lift on the inspection list */
+  .lift-row {
+    transition: transform 320ms var(--ease-out-soft), background-color var(--dur-micro) ease,
+      border-color var(--dur-micro) ease;
+  }
+  .lift-row:hover {
+    transform: translateX(6px);
+  }
+
+  /* ── Big step numerals ───────────────────────────────────────────────── */
+  .step-num {
+    transition: color 420ms ease, transform 620ms var(--ease-spring);
+  }
+  .step:hover .step-num {
+    color: theme("colors.accent.400");
+    transform: translateY(-4px) scale(1.04);
+  }
+
+  /* Slow ambient drift for the hero glow orbs */
+  .orb-drift {
+    animation: orb 18s ease-in-out infinite alternate;
+  }
+  .orb-drift-slow {
+    animation: orb 26s ease-in-out infinite alternate-reverse;
+  }
+  @keyframes orb {
+    0%   { transform: translate3d(0, 0, 0) scale(1); }
+    100% { transform: translate3d(28px, -22px, 0) scale(1.12); }
+  }
+}
+
+/* Respect the visitor's system setting — no exceptions. */
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .reveal-group > * {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .svc-card:hover,
+  .svc-grid:hover > *:not(:hover),
+  .lift-row:hover,
+  .svc-card:hover .ico-chip,
+  .svc-card:hover .ico-part {
+    transform: none !important;
+    opacity: 1 !important;
+    filter: none !important;
+  }
+  .svc-card::before,
+  .orb-drift,
+  .orb-drift-slow,
+  .pulse-dot::after {
+    animation: none !important;
+    transition: none !important;
   }
 }
