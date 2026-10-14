@@ -1,6 +1,7 @@
 import { site, groupedHours, mapsDirectionsUrl } from "@/lib/site-config";
 import { Magnetic } from "@/components/site/fx/Magnetic";
 import { Wordmark } from "@/components/site/brand/Wordmark";
+import { OpenAssistantButton } from "@/components/site/chat/OpenAssistantButton";
 
 /** The hero's text column (server-rendered; HeroIgnition animates it). */
 export function HeroCopy() {
@@ -42,6 +43,11 @@ export function HeroCopy() {
             <PhoneIcon />
             Call {site.phone}
           </a>
+        </Magnetic>
+        <Magnetic>
+          <OpenAssistantButton prompt="I'd like to book an appointment." className="btn-ghost-ign text-base">
+            Book online
+          </OpenAssistantButton>
         </Magnetic>
         <Magnetic>
           <a href={mapsDirectionsUrl} target="_blank" rel="noopener noreferrer" className="btn-ghost-ign text-base">
