@@ -9,10 +9,10 @@ export function CallJoe() {
   return (
     <section className="relative overflow-hidden bg-[#0a0908] py-28 text-white">
       <div className="ign-floor opacity-60" aria-hidden="true" />
-      <div className="pointer-events-none absolute left-1/2 top-0 h-80 w-[48rem] -translate-x-1/2 rounded-full bg-[#ff6a1a]/15 blur-3xl" />
+      <div className="pointer-events-none absolute left-1/2 top-0 h-80 w-[48rem] -translate-x-1/2 rounded-full bg-[#e3121b]/20 blur-3xl" />
       <ScrollReveal className="relative mx-auto grid max-w-6xl items-center gap-12 px-5 lg:grid-cols-[0.75fr_1.25fr]">
         <div data-reveal className="mx-auto w-full max-w-[18rem] lg:max-w-none">
-          <Tachometer className="w-full drop-shadow-[0_0_40px_rgba(255,106,26,0.35)]" />
+          <Tachometer className="w-full drop-shadow-[0_0_40px_rgba(227,18,27,0.4)]" />
         </div>
         <div data-rev className="text-center lg:text-left">
           <h2 data-reveal className="mega text-[clamp(3rem,8vw,7rem)]">

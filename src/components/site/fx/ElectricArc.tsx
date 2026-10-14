@@ -60,6 +60,7 @@ export const ElectricArc = forwardRef<ArcHandle, { className?: string }>(functio
     const tick = (t: number) => {
       raf = requestAnimationFrame(tick);
       if (!visible || document.hidden || t - last < 55) return;
+      if (document.documentElement.classList.contains("fx-3d-ready")) return; // 3D plug has the stage
       last = t;
       const surging = t < surgeUntil.current;
       for (let i = 0; i < BOLTS; i++) {

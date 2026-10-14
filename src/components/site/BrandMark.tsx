@@ -14,7 +14,7 @@ export function BrandMark({ size = "md" }: { size?: "md" | "lg" }) {
       </span>
       <span className="leading-none">
         <span className={`mega block ${text} text-white`}>{site.name}</span>
-        <span className="mt-0.5 block text-[10px] font-bold uppercase tracking-[0.32em] text-[#ffb02e]">
+        <span className="mt-0.5 block text-[10px] font-bold uppercase tracking-[0.32em] text-[#ff3b3f]">
           {site.address.city}, Montana
         </span>
       </span>

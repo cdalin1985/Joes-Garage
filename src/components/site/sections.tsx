@@ -114,7 +114,7 @@ export function FaqList({
           <summary className="flex cursor-pointer list-none items-start justify-between gap-4">
             <h3
               className={`text-lg font-bold ${
-                dark ? "text-white group-open:text-[#ffb02e]" : "text-slate-900 group-open:text-brand-700"
+                dark ? "text-white group-open:text-[#ff3b3f]" : "text-slate-900 group-open:text-brand-700"
               }`}
             >
               {f.q}
@@ -137,7 +137,7 @@ export function ServiceAreaNote() {
       Proudly serving drivers in{" "}
       <span className="font-semibold text-white/75">{site.serviceArea.join(", ")}</span> and the
       surrounding area.{" "}
-      <Link href="/contact" className="font-semibold text-[#ffb02e] hover:underline">
+      <Link href="/contact" className="font-semibold text-[#ff3b3f] hover:underline">
         Find us →
       </Link>
     </p>

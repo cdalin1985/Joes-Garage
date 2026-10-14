@@ -85,7 +85,7 @@ export function ExplodedSteps({ steps }: { steps: Step[] }) {
         <span className="absolute bottom-0 left-[1.15rem] top-0 w-px bg-white/10" aria-hidden="true" />
         <span
           data-fuse
-          className="absolute bottom-0 left-[1.15rem] top-0 w-px origin-top bg-gradient-to-b from-[#ffb02e] to-[#ff6a1a] shadow-[0_0_12px_2px_rgba(255,140,40,0.6)]"
+          className="absolute bottom-0 left-[1.15rem] top-0 w-px origin-top bg-gradient-to-b from-[#ff3b3f] to-[#b3060e] shadow-[0_0_12px_2px_rgba(227,18,27,0.6)]"
           aria-hidden="true"
         />
         {steps.map((s) => (
@@ -94,7 +94,7 @@ export function ExplodedSteps({ steps }: { steps: Step[] }) {
             data-step
             className="step-block group relative flex items-center py-10 pl-14 lg:min-h-[62svh] lg:py-0"
           >
-            <span className="absolute left-0 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-[#0a0908] text-xs font-bold text-white/70 transition-colors duration-500 group-[.is-active]:border-[#ffb02e] group-[.is-active]:text-[#ffb02e] group-[.is-active]:shadow-[0_0_18px_rgba(255,176,46,0.6)]">
+            <span className="absolute left-0 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-[#0a0908] text-xs font-bold text-white/70 transition-colors duration-500 group-[.is-active]:border-[#ff3b3f] group-[.is-active]:text-[#ff3b3f] group-[.is-active]:shadow-[0_0_18px_rgba(255,59,63,0.6)]">
               {s.n}
             </span>
             <div>

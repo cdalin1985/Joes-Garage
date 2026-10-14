@@ -23,7 +23,7 @@ export function WheelBearing({ className = "" }: { className?: string }) {
       </defs>
       <circle cx="60" cy="60" r="57" fill="none" stroke="url(#race)" strokeWidth="9" />
       <g className="bearing-cage">
-        <circle cx="60" cy="60" r="36" fill="none" stroke="#ffb02e" strokeOpacity="0.5" strokeWidth="1.5" strokeDasharray="3 4" />
+        <circle cx="60" cy="60" r="36" fill="none" stroke="#ff3b3f" strokeOpacity="0.5" strokeWidth="1.5" strokeDasharray="3 4" />
         {balls.map((b, i) => (
           <circle key={i} cx={b.cx} cy={b.cy} r="8.5" fill="url(#ball)" />
         ))}
@@ -31,7 +31,7 @@ export function WheelBearing({ className = "" }: { className?: string }) {
       <g className="bearing-inner">
         <circle cx="60" cy="60" r="22" fill="none" stroke="url(#race)" strokeWidth="7" />
         <circle cx="60" cy="60" r="12" fill="#0a0908" stroke="rgba(255,255,255,0.25)" />
-        <rect x="58.5" y="40" width="3" height="6" rx="1" fill="#ffb02e" />
+        <rect x="58.5" y="40" width="3" height="6" rx="1" fill="#ff3b3f" />
       </g>
     </svg>
   );

@@ -45,9 +45,9 @@ export default function ContactPage() {
 
             <a
               href={`tel:${site.phoneHref}`}
-              className="block rounded-2xl border-2 border-[#ffb02e]/70 bg-[#ffb02e]/10 p-6 transition hover:bg-[#ffb02e]/15"
+              className="block rounded-2xl border-2 border-[#ff3b3f]/70 bg-[#ff3b3f]/10 p-6 transition hover:bg-[#ff3b3f]/15"
             >
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#ffb02e]">
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#ff3b3f]">
                 Call the shop
               </p>
               <p className="mt-1 font-display text-3xl font-extrabold text-white">
@@ -68,7 +68,7 @@ export default function ContactPage() {
                   href={mapsDirectionsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-2 inline-block text-sm font-semibold text-[#ffb02e] hover:underline"
+                  className="mt-2 inline-block text-sm font-semibold text-[#ff3b3f] hover:underline"
                 >
                   Get directions →
                 </a>
@@ -79,7 +79,7 @@ export default function ContactPage() {
                   <p className="text-xs font-bold uppercase tracking-wide text-white/55">Email</p>
                   <a
                     href={`mailto:${site.email}`}
-                    className="mt-1 block font-medium text-[#ffb02e] hover:underline"
+                    className="mt-1 block font-medium text-[#ff3b3f] hover:underline"
                   >
                     {site.email}
                   </a>

@@ -1,5 +1,6 @@
 import { site, groupedHours, mapsDirectionsUrl } from "@/lib/site-config";
 import { Magnetic } from "@/components/site/fx/Magnetic";
+import { Wordmark } from "@/components/site/brand/Wordmark";
 
 /** The hero's text column (server-rendered; HeroIgnition animates it). */
 export function HeroCopy() {
@@ -9,32 +10,30 @@ export function HeroCopy() {
       <p
         data-fx="in"
         data-scramble
-        className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-white/15 bg-white/[0.04] px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.28em] text-[#ffb02e] before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#ffb02e] before:shadow-[0_0_10px_#ffb02e] before:content-['']"
+        className="mb-5 inline-flex items-center gap-2.5 rounded-full border border-white/15 bg-white/[0.04] px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.26em] text-[#ff3b3f] before:h-1.5 before:w-1.5 before:rounded-full before:bg-[#ff3b3f] before:shadow-[0_0_10px_#ff3b3f] before:content-['']"
       >
-        {site.name} · {site.address.city}, {site.address.state}
+        ASE Master Certified · {site.address.city}, MT
       </p>
 
-      <h1 data-fx="in" className="mega text-[clamp(3.2rem,7.2vw,6.6rem)] [perspective:600px]">
-        <span data-split className="block text-chrome">
-          Honest
+      <h1 data-fx="in" className="max-w-[640px]">
+        <span className="sr-only">
+          {site.name} — auto repair in {site.address.city}, Montana. Call {site.phone}.
         </span>
-        <span data-split className="block text-chrome">
-          wrenches.
-        </span>
-        <span data-split className="block text-fire">
-          Serious
-        </span>
-        <span data-split className="block text-fire">
-          spark.
-        </span>
-        <span className="mt-5 block font-sans text-base font-semibold normal-case tracking-normal text-white/55 sm:text-lg">
-          Auto repair in {site.address.city}, Montana
-        </span>
+        <Wordmark className="h-auto w-full drop-shadow-[0_10px_40px_rgba(227,18,27,0.35)]" />
       </h1>
 
-      <p data-fx="in" className="mt-6 max-w-xl text-lg leading-relaxed text-white/70">
-        General auto repair on {site.address.street}. Bring us the noise, the warning light, the
-        no-start — we&apos;ll find the real cause and tell you straight what it needs.
+      <p data-fx="in" data-tagline className="mega mt-6 text-[clamp(1.6rem,3.4vw,2.6rem)] [perspective:600px]">
+        <span data-split className="text-chrome">
+          Honest wrenches.
+        </span>{" "}
+        <span data-split className="text-red">
+          Serious spark.
+        </span>
+      </p>
+
+      <p data-fx="in" className="mt-5 max-w-xl text-lg leading-relaxed text-white/70">
+        General auto repair on {site.address.street}, {site.address.city}. Bring us the noise, the
+        warning light, the no-start — we&apos;ll find the real cause and tell you straight what it needs.
       </p>
 
       <div data-fx="in" className="mt-9 flex flex-wrap gap-3">

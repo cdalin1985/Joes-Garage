@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { site, faqs } from "@/lib/site-config";
+import { site, faqs, services } from "@/lib/site-config";
 import { FaqSchema } from "@/components/site/JsonLd";
 import { FaqList } from "@/components/site/sections";
 import { GarageDoor } from "@/components/site/fx/GarageDoor";
@@ -13,6 +13,9 @@ import { Inspection } from "@/components/site/home/Inspection";
 import { TipAndHours } from "@/components/site/home/TipAndHours";
 import { CallJoe } from "@/components/site/home/CallJoe";
 import { SectionEyebrow } from "@/components/site/home/SectionEyebrow";
+import { NoiseDecoder } from "@/components/site/home/NoiseDecoder";
+import { FromTheBay } from "@/components/site/home/FromTheBay";
+import { TextJoe } from "@/components/site/home/TextJoe";
 
 export const metadata: Metadata = {
   title: `Auto Repair in ${site.address.city}, ${site.address.state}`,
@@ -55,6 +58,8 @@ const STEPS = [
   },
 ];
 
+const SERVICE_NAMES = Object.fromEntries(services.map((s) => [s.slug, s.name]));
+
 export default function HomePage() {
   return (
     <div className="bg-[#0a0908]">
@@ -69,6 +74,28 @@ export default function HomePage() {
 
       <Services />
 
+      {/* What's that noise? — hear it, decode it, book it */}
+      <section id="noise" className="relative scroll-mt-20 overflow-hidden bg-[#0a0908] py-28 text-white">
+        <div className="pointer-events-none absolute right-0 top-0 h-[28rem] w-[40rem] bg-[radial-gradient(closest-side,rgba(127,220,255,0.08),transparent)]" aria-hidden="true" />
+        <ScrollReveal className="relative mx-auto max-w-7xl px-5">
+          <SectionEyebrow>What&apos;s that noise?</SectionEyebrow>
+          <h2 data-reveal className="mega max-w-4xl text-[clamp(2.8rem,6.5vw,5.75rem)]">
+            <span className="text-chrome">Describe it.</span> <span className="text-fire">Decode it.</span>
+          </h2>
+          <p data-reveal className="mt-6 max-w-2xl text-lg leading-relaxed text-white/65">
+            Pick what your vehicle is doing. Hear an example, see what usually causes it, and drop it straight
+            into a text to the shop.
+          </p>
+        </ScrollReveal>
+        <div className="relative mx-auto mt-12 max-w-7xl px-5">
+          <NoiseDecoder serviceNames={SERVICE_NAMES} />
+          <p className="mt-6 max-w-3xl text-xs leading-relaxed text-white/45">
+            A general guide, not a diagnosis. Example sounds are synthesized, and every vehicle is different —
+            the real answer comes from an inspection.
+          </p>
+        </div>
+      </section>
+
       {/* How it works — told by an exploding spark plug */}
       <section className="relative bg-[#12100e] py-28 text-white">
         <ScrollReveal className="mx-auto max-w-7xl px-5">
@@ -82,9 +109,30 @@ export default function HomePage() {
         </div>
       </section>
 
+      <FromTheBay />
+
       <Inspection />
 
       <TipAndHours />
+
+      {/* Build a text to the shop */}
+      <section id="text-joe" className="relative scroll-mt-20 overflow-hidden bg-[#12100e] py-28 text-white">
+        <div className="pointer-events-none absolute -right-40 bottom-0 h-96 w-96 rounded-full bg-[#e3121b]/15 blur-3xl" aria-hidden="true" />
+        <ScrollReveal className="relative mx-auto max-w-7xl px-5">
+          <SectionEyebrow>Skip the phone tag</SectionEyebrow>
+          <h2 data-reveal className="mega max-w-4xl text-[clamp(2.8rem,6.5vw,5.75rem)]">
+            <span className="block text-chrome">Build your text.</span>
+            <span className="block text-fire">Send it in seconds.</span>
+          </h2>
+          <p data-reveal className="mt-6 max-w-2xl text-lg leading-relaxed text-white/65">
+            Fill in what you know. We&apos;ll write it up so it lands with everything the shop needs to get back
+            to you.
+          </p>
+        </ScrollReveal>
+        <div className="relative mx-auto mt-12 max-w-7xl px-5">
+          <TextJoe shopName={site.name} phone={site.phone} phoneHref={site.phoneHref} email={site.email} />
+        </div>
+      </section>
 
       <section className="bg-[#12100e] py-28 text-white">
         <ScrollReveal className="mx-auto max-w-4xl px-5">

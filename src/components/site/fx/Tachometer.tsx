@@ -100,10 +100,10 @@ export function Tachometer({ className = "" }: { className?: string }) {
         x1000 r/min
       </text>
       <g data-needle>
-        <line x1="100" y1="112" x2="100" y2="26" stroke="#ff6a1a" strokeWidth="3.5" strokeLinecap="round" />
-        <line x1="100" y1="100" x2="100" y2="30" stroke="#ffd27a" strokeWidth="1" strokeLinecap="round" />
+        <line x1="100" y1="112" x2="100" y2="26" stroke="#ff2a30" strokeWidth="3.5" strokeLinecap="round" />
+        <line x1="100" y1="100" x2="100" y2="30" stroke="#ff8a8d" strokeWidth="1" strokeLinecap="round" />
       </g>
-      <circle cx="100" cy="100" r="9" fill="#1a1715" stroke="#ff6a1a" strokeWidth="2" />
+      <circle cx="100" cy="100" r="9" fill="#1a1715" stroke="#ff2a30" strokeWidth="2" />
     </svg>
   );
 }
