@@ -7,6 +7,7 @@
 
 import * as THREE from "three";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+import { kanitFamily } from "./kanit";
 
 export type PlugSceneApi = {
   /** Throw a spark: `power` 0.3 = idle crackle, 1+ = full ignition. */
@@ -86,13 +87,14 @@ function labelTexture(): THREE.CanvasTexture {
   g.lineTo(cx - 250, 360);
   g.closePath();
   g.stroke();
+  const kanit = kanitFamily();
   g.fillStyle = "#c8101a";
-  g.font = "italic 900 170px Kanit, Impact, sans-serif";
+  g.font = `italic 900 170px ${kanit}, Impact, sans-serif`;
   g.fillText("JOE'S", cx, 170);
   g.fillStyle = "#151515";
-  g.font = "italic 800 66px Kanit, Impact, sans-serif";
+  g.font = `italic 800 66px ${kanit}, Impact, sans-serif`;
   g.fillText("GARAGE", cx, 300);
-  g.font = "700 34px Kanit, sans-serif";
+  g.font = `700 34px ${kanit}, sans-serif`;
   g.fillText("HELENA, MT", cx, 380);
   const tex = new THREE.CanvasTexture(c);
   tex.colorSpace = THREE.SRGBColorSpace;

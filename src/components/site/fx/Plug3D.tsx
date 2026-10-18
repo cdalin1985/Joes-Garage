@@ -2,6 +2,7 @@
 
 import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import type { PlugSceneApi } from "./plug3d-scene";
+import { kanitFamily } from "./kanit";
 
 export type Plug3DHandle = {
   fire: (power?: number) => void;
@@ -33,7 +34,7 @@ export const Plug3D = forwardRef<Plug3DHandle, { className?: string }>(function 
     let cancelled = false;
     // The insulator label is drawn in Kanit; give the font a moment to arrive.
     const font = Promise.race([
-      document.fonts?.load("italic 900 100px Kanit").catch(() => undefined),
+      document.fonts?.load(`italic 900 100px ${kanitFamily()}`).catch(() => undefined),
       new Promise((r) => setTimeout(r, 1200)),
     ]);
     Promise.all([import("./plug3d-scene"), font])

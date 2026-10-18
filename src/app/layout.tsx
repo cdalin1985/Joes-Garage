@@ -1,6 +1,35 @@
 import type { Metadata } from "next";
+import { Big_Shoulders_Display, Kanit, Plus_Jakarta_Sans, Space_Grotesk, Tangerine } from "next/font/google";
 import "./globals.css";
 import { site } from "@/lib/site-config";
+
+/**
+ * Fonts are downloaded at build time and served from this site (next/font):
+ * no render-blocking request to Google Fonts, and size-matched fallbacks keep
+ * text from jumping when they arrive. Each exposes a CSS variable that
+ * globals.css maps onto --font-sans / --font-display / --font-script /
+ * --font-mega. Kanit is only drawn on the 3D plug's canvas label, so it isn't
+ * preloaded (see fx/kanit.ts).
+ */
+const sans = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--nf-sans", display: "swap" });
+const display = Space_Grotesk({ subsets: ["latin"], variable: "--nf-display", display: "swap" });
+const mega = Big_Shoulders_Display({ subsets: ["latin"], variable: "--nf-mega", display: "swap" });
+const script = Tangerine({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--nf-script",
+  display: "swap",
+  preload: false,
+});
+const kanit = Kanit({
+  subsets: ["latin"],
+  weight: ["800", "900"],
+  style: ["italic"],
+  variable: "--nf-kanit",
+  display: "swap",
+  preload: false,
+});
+const fontVars = [sans, display, mega, script, kanit].map((f) => f.variable).join(" ");
 
 export const metadata: Metadata = {
   /** Makes every relative link in metadata (canonicals, images) absolute. */
@@ -72,14 +101,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className={fontVars} suppressHydrationWarning>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Tangerine:wght@400;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Big+Shoulders+Display:wght@700;800;900&family=Kanit:ital,wght@1,800;1,900&display=swap"
-          rel="stylesheet"
-        />
         <meta name="theme-color" content="#14110e" />
       </head>
       <body>{children}</body>
