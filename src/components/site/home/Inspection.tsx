@@ -11,7 +11,7 @@ const ROWS = [
 /** The photo-inspection pitch, shown on a phone that's being "scanned". */
 export function Inspection() {
   return (
-    <section className="relative overflow-hidden bg-[#12100e] py-28 text-white">
+    <section id="inspection" className="relative overflow-hidden bg-[#12100e] py-28 text-white">
       <div className="pointer-events-none absolute -right-40 top-1/4 h-[30rem] w-[30rem] rounded-full bg-[#7fdcff]/10 blur-3xl" />
       <ScrollReveal className="relative mx-auto grid max-w-7xl items-center gap-16 px-5 lg:grid-cols-2">
         <div>

@@ -16,6 +16,7 @@ import { SectionEyebrow } from "@/components/site/home/SectionEyebrow";
 import { NoiseDecoder } from "@/components/site/home/NoiseDecoder";
 import { FromTheBay } from "@/components/site/home/FromTheBay";
 import { TextJoe } from "@/components/site/home/TextJoe";
+import { NoiseJoe } from "@/components/site/joe/NoiseJoe";
 
 export const metadata: Metadata = {
   title: `Auto Repair in ${site.address.city}, ${site.address.state}`,
@@ -88,6 +89,7 @@ export default function HomePage() {
           </p>
         </ScrollReveal>
         <div className="relative mx-auto mt-12 max-w-7xl px-5">
+          <NoiseJoe />
           <NoiseDecoder serviceNames={SERVICE_NAMES} />
           <p className="mt-6 max-w-3xl text-xs leading-relaxed text-white/45">
             A general guide, not a diagnosis. Example sounds are synthesized, and every vehicle is different —

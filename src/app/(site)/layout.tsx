@@ -5,6 +5,8 @@ import { SiteSchema } from "@/components/site/JsonLd";
 import { ScrollFuse } from "@/components/site/fx/ScrollFuse";
 import { SparkCursor } from "@/components/site/fx/SparkCursor";
 import { ShopAssistant } from "@/components/site/chat/ShopAssistant";
+import { JoePeek } from "@/components/site/joe/JoePeek";
+import { JoeToggle } from "@/components/site/joe/JoeToggle";
 import { site } from "@/lib/site-config";
 import "./fx.css";
 
@@ -25,6 +27,7 @@ export const metadata: Metadata = {
  */
 const FX_BOOT = `(function(){try{
 var c=document.documentElement.classList;
+try{if(sessionStorage.getItem('joes-hidden'))c.add('joe-hidden')}catch(e){}
 if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
 c.add('fx-on');
 try{var g=document.createElement('canvas');if(g.getContext('webgl2')||g.getContext('webgl'))c.add('fx-3d')}catch(e){}
@@ -46,6 +49,8 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
       <SiteFooter />
       <SparkCursor />
       <ShopAssistant shopName={site.name} phone={site.phone} phoneHref={site.phoneHref} />
+      <JoePeek />
+      <JoeToggle />
     </div>
   );
 }

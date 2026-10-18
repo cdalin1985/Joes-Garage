@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { ADD_SYMPTOM_EVENT, URGENCY_LABEL, symptoms, type Symptom, type Urgency } from "@/lib/symptoms";
 import { playSymptom, previewSample, type Playback } from "@/components/site/fx/noise-synth";
 import { prefersReducedMotion } from "@/components/site/fx/gsap";
+import { tellJoe } from "@/components/site/joe/events";
 
 const URGENCY_TONE: Record<Urgency, string> = {
   now: "bg-[#ff3b3f] text-white",
@@ -130,6 +131,7 @@ export function NoiseDecoder({ serviceNames }: { serviceNames: Record<string, st
     live.current?.stop();
     live.current = null;
     setPlaying(false);
+    tellJoe(null);
   };
 
   // Silence any example still playing when the section unmounts.
@@ -144,6 +146,7 @@ export function NoiseDecoder({ serviceNames }: { serviceNames: Record<string, st
   const pick = (id: string) => {
     stop();
     setActive(id);
+    if (symptoms.find((x) => x.id === id)?.sound === "none") tellJoe("none");
   };
 
   const hear = () => {
@@ -152,6 +155,7 @@ export function NoiseDecoder({ serviceNames }: { serviceNames: Record<string, st
     if (!p) return;
     live.current = p;
     setPlaying(true);
+    tellJoe(s.sound);
     timer.current = window.setTimeout(stop, (p.endsAt - p.ctx.currentTime) * 1000 + 120);
   };
 
