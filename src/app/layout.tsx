@@ -26,7 +26,8 @@ export const metadata: Metadata = {
   creator: site.name,
   publisher: site.name,
   formatDetection: { telephone: true, address: true },
-  alternates: { canonical: "/" },
+  // No site-wide canonical: each public page sets its own. Inherited here, it
+  // told Google that any page without one (e.g. /requests) was the home page.
   openGraph: {
     type: "website",
     locale: "en_US",
