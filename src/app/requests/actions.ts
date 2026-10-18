@@ -1,10 +1,10 @@
 "use server";
 
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { getDb, isUniqueViolation } from "@/lib/db";
-import { REQUESTS_COOKIE, REQUESTS_PATH, isUnlocked, pinMatches, unlockToken } from "@/lib/requests-auth";
+import { REQUESTS_COOKIE, REQUESTS_PATH, allowPinAttempt, isUnlocked, pinMatches, unlockToken } from "@/lib/requests-auth";
 
 /** Server actions for Joe's booking-requests page. Every action re-checks the PIN cookie. */
 
@@ -12,6 +12,12 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const STATUSES = new Set(["requested", "confirmed", "declined", "cancelled"]);
 
 export async function unlock(formData: FormData) {
+  const db = getDb();
+  if (!db) redirect(REQUESTS_PATH);
+  // Shared limit first (see allowPinAttempt), so guessing can't be parallelised.
+  const ip = headers().get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  if (!(await allowPinAttempt(db, ip))) redirect(`${REQUESTS_PATH}?e=locked`);
+
   const pin = String(formData.get("pin") ?? "");
   if (!pinMatches(pin)) {
     await new Promise((r) => setTimeout(r, 1000)); // slow down guessing
