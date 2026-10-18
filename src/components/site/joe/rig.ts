@@ -1,7 +1,7 @@
 "use client";
 
 import { gsap, prefersReducedMotion } from "@/components/site/fx/gsap";
-import { CLICK_MOVES, MOVES, REST, type MoveName } from "./moves";
+import { CLICK_MOVES, MOVES, REST, type Fx, type MoveName } from "./moves";
 import type { PoseName } from "./art";
 
 export type Rig = ReturnType<typeof createRig>;
@@ -15,6 +15,7 @@ export function createRig(stage: HTMLElement, { rest = "base", clickMoves = CLIC
   const reduce = prefersReducedMotion();
   const imgs = [...stage.querySelectorAll<HTMLElement>("[data-pose]")];
   const warn = stage.querySelector<HTMLElement>("[data-warn]")!;
+  const wrench = stage.querySelector<HTMLElement>("[data-wrench]")!;
   // Elements painted onto Joe (the sign's text) move with him.
   const body = [stage, ...followers];
   gsap.set(stage, { transformOrigin: "50% 100%", ...REST });
@@ -36,9 +37,10 @@ export function createRig(stage: HTMLElement, { rest = "base", clickMoves = CLIC
     const move = MOVES[name] as (typeof MOVES)[MoveName] & { pose?: PoseName };
     const tl = gsap.timeline({ onComplete: () => void (current === tl && (current = null)) });
     tl.to(body, { ...REST, duration: 0.15, ease: "power2.out" }, 0);
-    tl.set(warn, { opacity: 0 }, 0);
+    tl.set([warn, wrench], { opacity: 0 }, 0);
     show(tl, move.pose ?? rest, 0);
-    const out = move.run(tl, body, dur, { warn });
+    const fx: Fx = { warn, wrench, height: stage.offsetHeight, show: (p, at) => show(tl, p, at) };
+    const out = move.run(tl, body, dur, fx);
     show(tl, rest, out);
     tl.to(body, { ...REST, duration: 0.3, ease: "power2.inOut" }, out);
     current = tl;
@@ -56,7 +58,7 @@ export function createRig(stage: HTMLElement, { rest = "base", clickMoves = CLIC
     const tl = gsap.timeline();
     show(tl, rest, 0);
     tl.to(body, { ...REST, duration: 0.3, ease: "power2.out" }, 0);
-    gsap.set(warn, { opacity: 0 });
+    gsap.set([warn, wrench], { opacity: 0 });
   };
 
   const playRandomClick = () => play(clickMoves[Math.floor(Math.random() * clickMoves.length)], 1.4);

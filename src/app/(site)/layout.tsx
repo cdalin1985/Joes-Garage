@@ -5,6 +5,8 @@ import { SiteSchema } from "@/components/site/JsonLd";
 import { ScrollFuse } from "@/components/site/fx/ScrollFuse";
 import { SparkCursor } from "@/components/site/fx/SparkCursor";
 import { ShopAssistant } from "@/components/site/chat/ShopAssistant";
+import { JoePeek } from "@/components/site/joe/JoePeek";
+import { JoeToggle } from "@/components/site/joe/JoeToggle";
 import { site } from "@/lib/site-config";
 import "./fx.css";
 
@@ -47,6 +49,8 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
       <SiteFooter />
       <SparkCursor />
       <ShopAssistant shopName={site.name} phone={site.phone} phoneHref={site.phoneHref} />
+      <JoePeek />
+      <JoeToggle />
     </div>
   );
 }

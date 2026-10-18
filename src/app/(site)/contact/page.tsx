@@ -9,7 +9,6 @@ import {
 import { BreadcrumbSchema, FaqSchema } from "@/components/site/JsonLd";
 import { ClosingCta, Eyebrow, FaqList, PageHero } from "@/components/site/sections";
 import { HoursJoe } from "@/components/site/joe/HoursJoe";
-import { JoeToggle } from "@/components/site/joe/JoeToggle";
 
 export const metadata: Metadata = {
   title: "Contact, Hours & Directions",
@@ -32,7 +31,6 @@ export default function ContactPage() {
         ]}
       />
       <FaqSchema />
-      <JoeToggle />
 
       <PageHero
         eyebrow="Contact"

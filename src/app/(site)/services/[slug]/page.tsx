@@ -6,7 +6,6 @@ import { BreadcrumbSchema, FaqSchema, ServiceSchema } from "@/components/site/Js
 import { RevealGroup } from "@/components/site/Reveal";
 import { ClosingCta, Eyebrow, FaqList, HATCH } from "@/components/site/sections";
 import { ServiceJoe } from "@/components/site/joe/ServiceJoe";
-import { JoeToggle } from "@/components/site/joe/JoeToggle";
 
 /** Pre-build a page for every service so they load instantly and index cleanly. */
 export function generateStaticParams() {
@@ -88,7 +87,6 @@ export default function ServiceDetailPage({ params }: { params: { slug: string }
           <ServiceJoe slug={service.slug} />
         </div>
       </section>
-      <JoeToggle />
 
       {/* Symptoms + what's included */}
       <section className="bg-[#0a0908] py-16 sm:py-20">

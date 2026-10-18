@@ -3,7 +3,7 @@
 import { gsap, whenDoorOpen } from "@/components/site/fx/gsap";
 import { createRig, type Rig } from "./rig";
 import { CLICK_MOVES, PROP_CLICKS, SOUND_MOVES, posesFor, type MoveName } from "./moves";
-import { POSES, type Behavior, type JoeArtName, type PoseName } from "./art";
+import { POSES, WRENCH, type Behavior, type JoeArtName, type PoseName } from "./art";
 import { JOE_NOISE_EVENT, type JoeNoiseDetail } from "./events";
 import { peek, PEEK_MOVES } from "./peek";
 
@@ -78,6 +78,16 @@ const warnLight = () => {
   return el;
 };
 
+/** The loose wrench for the toss, starting in Joe's open hand. */
+const looseWrench = () => {
+  const el = document.createElement("img");
+  el.src = WRENCH;
+  el.alt = "";
+  el.dataset.wrench = "";
+  el.className = "pointer-events-none absolute left-[13%] top-[24%] w-[30%] opacity-0";
+  return el;
+};
+
 /** Stack every pose this Joe needs over the still image (same box, so no shift) and start the rig. */
 export async function goLive(box: HTMLElement, art: JoeArtName, behavior: Behavior): Promise<Live> {
   const poses: PoseName[] = [art, ...posesFor(art === "base" ? USES[behavior] : [])].filter((p, i, a) => a.indexOf(p) === i);
@@ -85,7 +95,7 @@ export async function goLive(box: HTMLElement, art: JoeArtName, behavior: Behavi
   const stage = document.createElement("div");
   stage.className = "pointer-events-none absolute inset-0";
   imgs.forEach((img) => (img.style.opacity = img.dataset.pose === art ? "1" : "0"));
-  stage.append(...imgs, warnLight());
+  stage.append(...imgs, warnLight(), looseWrench());
   const still = box.querySelector<HTMLElement>("[data-joe-still]");
   box.insertBefore(stage, still?.nextSibling ?? null);
   if (still) still.style.visibility = "hidden";

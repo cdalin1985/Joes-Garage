@@ -1,12 +1,13 @@
 "use client";
 
 import { gsap } from "@/components/site/fx/gsap";
+import { confetti } from "./confetti";
 import type { Rig } from "./rig";
 import { SOUND_MOVES, type MoveName } from "./moves";
 import { JOE_CHAT_EVENT, JOE_NOISE_EVENT, type JoeChatDetail, type JoeNoiseDetail } from "./events";
 
 /** Moves the peek plays besides the noise reactions. */
-export const PEEK_MOVES: MoveName[] = ["point", "wave", "thumbsUp", "think"];
+export const PEEK_MOVES: MoveName[] = ["point", "wave", "thumbsUp", "think", "celebrate"];
 
 /** Sections Joe peeks in and points at, once per visit. */
 const SECTIONS = ["services", "noise", "inspection", "text-joe"];
@@ -73,10 +74,15 @@ export function peek(rig: Rig, el: HTMLElement) {
     },
     { rootMargin: "-35% 0px -35% 0px" },
   );
-  SECTIONS.forEach((id) => {
-    const s = document.getElementById(id);
-    if (s) io.observe(s);
-  });
+  // Joe lives in the site layout, so re-scan for sections after client-side navigation.
+  const watched = new Set<Element>();
+  const scan = () =>
+    SECTIONS.forEach((id) => {
+      const s = document.getElementById(id);
+      if (s && !watched.has(s)) (watched.add(s), io.observe(s));
+    });
+  scan();
+  const rescan = setInterval(scan, 1500);
 
   const onNoise = (e: Event) => {
     if (!below(1024)) return;
@@ -84,13 +90,26 @@ export function peek(rig: Rig, el: HTMLElement) {
     if (sound) perform(SOUND_MOVES[sound], sound === "none" ? 2.2 : 2.5);
     else finish();
   };
+  let party: gsap.core.Tween | undefined;
+  const celebrate = () => {
+    // On phones the assistant fills the screen: confetti only, over the chat.
+    // Same when the visitor has hidden Joe.
+    const hidden = document.documentElement.classList.contains("joe-hidden");
+    if (below(640) || hidden) return void confetti(window.innerWidth / 2, window.innerHeight * 0.35);
+    perform("celebrate", 2.8);
+    party?.kill();
+    party = gsap.delayedCall(0.5, () => {
+      const r = el.getBoundingClientRect();
+      confetti(r.left + r.width / 2, r.top + r.height * 0.3);
+    });
+  };
   // On phones the assistant covers the whole screen, so Joe only reacts on wider ones.
   const onChat = (e: Event) => {
-    if (below(640)) return;
     const { state } = (e as CustomEvent<JoeChatDetail>).detail;
+    if (state === "booked") return celebrate();
+    if (below(640)) return;
     if (state === "open") perform("wave", 2);
     else if (state === "waiting") perform("think", 30);
-    else if (state === "booked") perform("thumbsUp", 1.8);
     else if (move === "think" || state === "closed") finish();
   };
   window.addEventListener(JOE_NOISE_EVENT, onNoise);
@@ -98,6 +117,8 @@ export function peek(rig: Rig, el: HTMLElement) {
 
   return () => {
     io.disconnect();
+    clearInterval(rescan);
+    party?.kill();
     window.removeEventListener(JOE_NOISE_EVENT, onNoise);
     window.removeEventListener(JOE_CHAT_EVENT, onChat);
     show?.kill();

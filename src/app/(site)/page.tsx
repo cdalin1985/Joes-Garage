@@ -17,8 +17,6 @@ import { NoiseDecoder } from "@/components/site/home/NoiseDecoder";
 import { FromTheBay } from "@/components/site/home/FromTheBay";
 import { TextJoe } from "@/components/site/home/TextJoe";
 import { NoiseJoe } from "@/components/site/joe/NoiseJoe";
-import { JoePeek } from "@/components/site/joe/JoePeek";
-import { JoeToggle } from "@/components/site/joe/JoeToggle";
 
 export const metadata: Metadata = {
   title: `Auto Repair in ${site.address.city}, ${site.address.state}`,
@@ -149,8 +147,6 @@ export default function HomePage() {
       </section>
 
       <CallJoe />
-      <JoePeek />
-      <JoeToggle />
     </div>
   );
 }

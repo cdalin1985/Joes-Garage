@@ -3,8 +3,16 @@ import type { PoseName } from "./art";
 
 type TL = gsap.core.Timeline;
 /** Moves the whole of Joe (`el`); returns when to head back to rest. */
-type Motion = (tl: TL, el: gsap.TweenTarget, dur: number, fx: { warn: HTMLElement }) => number;
-type Move = { pose?: PoseName; run: Motion };
+export type Fx = {
+  warn: HTMLElement;
+  wrench: HTMLElement;
+  /** Stage height in px, for moves that travel a fixed share of Joe's height. */
+  height: number;
+  show: (pose: PoseName, at: number) => void;
+};
+type Motion = (tl: TL, el: gsap.TweenTarget, dur: number, fx: Fx) => number;
+/** `extra`: further poses the move swaps through (so they get preloaded). */
+type Move = { pose?: PoseName; extra?: PoseName[]; run: Motion };
 
 const odd = (n: number) => Math.max(1, Math.round(n) | 1);
 const shake = (tl: TL, el: gsap.TweenTarget, vars: gsap.TweenVars, step: number, dur: number, at = 0.15) =>
@@ -131,6 +139,44 @@ export const MOVES = {
       return dur - 0.3;
     },
   },
+  capTip: {
+    pose: "cap",
+    run: (tl, el) => {
+      tl.to(el, { y: 5, rotation: -1.5, duration: 0.22, ease: "power2.out" }, 0);
+      tl.addLabel("pose", 0.22);
+      tl.to(el, { y: 0, rotation: 0, duration: 0.4, ease: "back.out(2.5)" }, 0.75);
+      return 1.3;
+    },
+  },
+  wrenchSpin: {
+    pose: "toss",
+    run: (tl, el, _dur, { wrench, height }) => {
+      tl.addLabel("pose", 0.1);
+      tl.fromTo(wrench, { opacity: 1, y: 0, rotation: 0 }, { y: -height * 0.32, rotation: 540, duration: 0.5, ease: "power2.out" }, 0.1);
+      tl.to(wrench, { y: 0, rotation: 1080, duration: 0.45, ease: "power2.in" }, 0.6);
+      tl.to(el, { y: 6, duration: 0.08, ease: "power2.out", yoyo: true, repeat: 1 }, 1.05);
+      tl.set(wrench, { opacity: 0 }, 1.25);
+      return 1.25;
+    },
+  },
+  celebrate: {
+    pose: "thumb",
+    extra: ["jigA", "jigB"],
+    run: (tl, el, dur, { show }) => {
+      tl.to(el, { y: -16, scaleY: 1.03, duration: 0.2, ease: "power2.out" }, 0);
+      tl.addLabel("pose", 0.2);
+      tl.to(el, { y: 0, scaleY: 1, duration: 0.45, ease: "bounce.out" }, 0.2);
+      const start = 0.9;
+      const steps = Math.max(6, Math.round((dur - start - 0.3) / 0.24));
+      for (let i = 0; i < steps; i++) {
+        const at = start + i * 0.24;
+        show(i % 2 ? "jigB" : "jigA", at);
+        tl.to(el, { y: -14, rotation: i % 2 ? 2.5 : -2.5, duration: 0.12, ease: "power2.out" }, at);
+        tl.to(el, { y: 0, duration: 0.12, ease: "power2.in" }, at + 0.12);
+      }
+      return start + steps * 0.24;
+    },
+  },
   nod: {
     run: (tl, el) => {
       tl.to(el, { y: 4, scaleY: 0.985, duration: 0.14, ease: "sine.inOut", yoyo: true, repeat: 3 }, 0);
@@ -151,7 +197,7 @@ export const MOVES = {
 
 export type MoveName = keyof typeof MOVES;
 
-export const CLICK_MOVES: MoveName[] = ["thumbsUp", "wave", "point"];
+export const CLICK_MOVES: MoveName[] = ["thumbsUp", "wave", "point", "capTip", "wrenchSpin"];
 export const PROP_CLICKS: MoveName[] = ["propShow"];
 
 /** Which reaction Joe plays for each example sound in "What's that noise?". */
@@ -168,4 +214,5 @@ export const SOUND_MOVES: Record<SoundKind, MoveName> = {
 };
 
 /** Every pose a behaviour might need, so it can be preloaded once. */
-export const posesFor = (moves: MoveName[]) => [...new Set(moves.map((m) => (MOVES[m] as Move).pose).filter(Boolean))] as PoseName[];
+export const posesFor = (moves: MoveName[]) =>
+  [...new Set(moves.flatMap((m) => [(MOVES[m] as Move).pose, ...((MOVES[m] as Move).extra ?? [])]).filter(Boolean))] as PoseName[];
