@@ -30,7 +30,7 @@ function shopNow(timeZone: string) {
   return { dayIdx: ORDER.indexOf(get("weekday")), minutes: Number(get("hour")) * 60 + Number(get("minute")) };
 }
 
-function status(hours: Day[], timeZone: string) {
+export function shopStatus(hours: Day[], timeZone: string) {
   const byName = new Map(hours.map((h) => [h.day, h]));
   const { dayIdx, minutes } = shopNow(timeZone);
   const today = byName.get(ORDER[dayIdx]);
@@ -57,7 +57,7 @@ export function NeonSign({ hours, timeZone }: { hours: Day[]; timeZone: string }
   const [state, setState] = useState<{ open: boolean; line: string } | null>(null);
 
   useEffect(() => {
-    const tick = () => setState(status(hours, timeZone));
+    const tick = () => setState(shopStatus(hours, timeZone));
     tick();
     const id = setInterval(tick, 60_000);
     return () => clearInterval(id);

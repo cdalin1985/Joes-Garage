@@ -6,6 +6,7 @@ import { SparkPlug } from "./SparkPlug";
 import { ElectricArc, type ArcHandle } from "./ElectricArc";
 import { EmberCanvas, type EmberHandle } from "./EmberCanvas";
 import { Plug3D, type Plug3DHandle } from "./Plug3D";
+import { HeroJoe } from "@/components/site/joe/HeroJoe";
 
 /**
  * The home-page hero: Joe's wordmark assembles itself while a real-time 3D
@@ -187,7 +188,8 @@ export function HeroIgnition({ children }: { children: React.ReactNode }) {
           {children}
         </div>
 
-        <div data-plug-scroll className="order-1 flex justify-center lg:order-2">
+        <div data-plug-scroll className="relative order-1 flex justify-center lg:order-2">
+          <HeroJoe />
           <div data-plug-stage className="relative h-[30svh] sm:h-[44svh] lg:h-[76svh]">
             <Plug3D
               ref={plug3d}

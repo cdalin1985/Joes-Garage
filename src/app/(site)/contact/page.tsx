@@ -8,6 +8,8 @@ import {
 } from "@/lib/site-config";
 import { BreadcrumbSchema, FaqSchema } from "@/components/site/JsonLd";
 import { ClosingCta, Eyebrow, FaqList, PageHero } from "@/components/site/sections";
+import { HoursJoe } from "@/components/site/joe/HoursJoe";
+import { JoeToggle } from "@/components/site/joe/JoeToggle";
 
 export const metadata: Metadata = {
   title: "Contact, Hours & Directions",
@@ -30,6 +32,7 @@ export default function ContactPage() {
         ]}
       />
       <FaqSchema />
+      <JoeToggle />
 
       <PageHero
         eyebrow="Contact"
@@ -102,6 +105,7 @@ export default function ContactPage() {
           {/* Hours + map */}
           <div>
             <Eyebrow tone="light">Hours &amp; location</Eyebrow>
+            <HoursJoe hours={[...site.hours]} timeZone={site.timeZone} lines={hours} />
             <div className="overflow-hidden rounded-2xl border border-white/10">
               <table className="w-full text-sm">
                 <tbody>

@@ -25,6 +25,7 @@ export const metadata: Metadata = {
  */
 const FX_BOOT = `(function(){try{
 var c=document.documentElement.classList;
+try{if(sessionStorage.getItem('joes-hidden'))c.add('joe-hidden')}catch(e){}
 if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
 c.add('fx-on');
 try{var g=document.createElement('canvas');if(g.getContext('webgl2')||g.getContext('webgl'))c.add('fx-3d')}catch(e){}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { tellJoeChat } from "@/components/site/joe/events";
 import { OPEN_ASSISTANT_EVENT, type OpenAssistantDetail } from "./events";
 
 type Msg = { role: "user" | "assistant"; content: string };
@@ -51,6 +52,16 @@ export function ShopAssistant({ shopName, phone, phoneHref }: Props) {
       /* storage unavailable */
     }
   }, [msgs, bookings]);
+
+  // Let Joe (the mascot) react to the chat.
+  const mounted = useRef(false);
+  useEffect(() => {
+    if (mounted.current) tellJoeChat(open ? "open" : "closed");
+  }, [open]);
+  useEffect(() => {
+    if (mounted.current) tellJoeChat(pending ? "waiting" : "replied");
+    mounted.current = true;
+  }, [pending]);
 
   useEffect(() => {
     if (open) listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
@@ -108,7 +119,10 @@ export function ShopAssistant({ shopName, phone, phoneHref }: Props) {
           return;
         }
         setMsgs([...next, { role: "assistant", content: data.reply }]);
-        if (data.booking?.ref) setBookings((b) => ({ ...b, [next.length]: { ref: data.booking.ref, when: data.booking.when } }));
+        if (data.booking?.ref) {
+          setBookings((b) => ({ ...b, [next.length]: { ref: data.booking.ref, when: data.booking.when } }));
+          tellJoeChat("booked");
+        }
       } catch {
         rollback();
         setNotice(`Couldn't reach the assistant. Check your connection, or call ${phone}.`);

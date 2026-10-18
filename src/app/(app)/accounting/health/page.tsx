@@ -313,7 +313,7 @@ export default async function ShopHealthPage({ searchParams }: { searchParams: {
       </Card>
 
       <p className="mt-4 text-xs text-slate-400 print:hidden">
-        Rolling windows: today back {days} days, compared against the {days} days before that. "Cars finished" counts
+        Rolling windows: today back {days} days, compared against the {days} days before that. &ldquo;Cars finished&rdquo; counts
         work orders marked completed or delivered; billed/collected are cash-basis like the rest of the books.
       </p>
     </div>

@@ -207,7 +207,7 @@ export default async function FollowUpsPage() {
       )}
 
       <p className="mt-4 text-xs text-slate-400">
-        "Log call" records an outbound call in the customer&apos;s communications log so you both can see who&apos;s been contacted.
+        &ldquo;Log call&rdquo; records an outbound call in the customer&apos;s communications log so you both can see who&apos;s been contacted.
         A green badge means someone already called within the last two weeks.
       </p>
     </div>
