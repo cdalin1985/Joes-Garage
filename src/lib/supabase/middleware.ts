@@ -22,6 +22,7 @@ const PUBLIC_EXACT = new Set([
   "/sitemap.xml",
   "/manifest.webmanifest",
   "/api/assistant", // the website's chat + booking assistant (validates its own input)
+  "/requests", // Joe's booking-requests page (PIN-protected, not Supabase)
 ]);
 
 /** Routes where everything beneath the prefix is also public. */
@@ -41,6 +42,13 @@ function isPublic(pathname: string): boolean {
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
+
+  // Public pages never need the staff session, so don't call Supabase for
+  // them at all — the website keeps working even if the staff database is
+  // down. (/login still checks, to send signed-in staff to the dashboard.)
+  if (isPublic(request.nextUrl.pathname) && request.nextUrl.pathname !== "/login") {
+    return response;
+  }
 
   // If Supabase isn't configured yet, don't block — let pages render a
   // friendly "connect your project" message.

@@ -2,7 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 import { ASSISTANT_SYSTEM_PROMPT } from "@/lib/shop-knowledge";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { getDb } from "@/lib/db";
 import { createWebRequest, findOpenSlots, nowForAssistant, type RequestResult } from "@/lib/booking";
 import { site } from "@/lib/site-config";
 
@@ -19,7 +19,9 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
-const MODEL = "claude-opus-5-5";
+// Haiku 5.5: fast and low-cost. It has no server-side refusal fallback, so a
+// refusal is handled below with a "please call" reply.
+const MODEL = "claude-haiku-5-5";
 const MAX_TOOL_ROUNDS = 6;
 
 const Body = z.object({
@@ -114,7 +116,7 @@ function rateLimited(ip: string): boolean {
 type ToolOutcome = { content: string; isError?: boolean; booking?: Extract<RequestResult, { ok: true }> };
 
 async function runTool(name: string, input: unknown): Promise<ToolOutcome> {
-  const db = createAdminClient();
+  const db = getDb();
   if (!db) {
     return {
       content: `Online booking isn't switched on yet. Ask the customer to call ${site.phone} to book.`,
@@ -200,9 +202,9 @@ export async function POST(req: NextRequest) {
       const response = await client.beta.messages.create({
         model: MODEL,
         max_tokens: 4096,
-        betas: ["server-side-fallback-2026-07-01"],
-        fallbacks: "default",
-        output_config: { effort: "low" },
+        // "medium" (Haiku's default): at "low" it is likelier to skip a tool
+        // call, and offering times without checking availability would be wrong.
+        output_config: { effort: "medium" },
         system: [{ type: "text", text: ASSISTANT_SYSTEM_PROMPT, cache_control: { type: "ephemeral" } }],
         tools: TOOLS,
         messages,
