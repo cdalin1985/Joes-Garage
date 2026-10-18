@@ -1,10 +1,13 @@
 import { createHmac, timingSafeEqual } from "crypto";
 import { cookies } from "next/headers";
+import type { Query } from "@/lib/db";
 
 /**
  * PIN lock for Joe's /requests page. The PIN lives in the BOOKING_PIN env var
  * (server-only); unlocking sets an httpOnly cookie holding an HMAC derived
- * from the PIN, so changing the PIN signs everyone out.
+ * from the PIN, so changing the PIN signs everyone out. Unlock attempts are
+ * rate-limited through the database (pin_attempts), which every server
+ * instance shares, so the PIN can't be brute-forced in parallel.
  */
 
 export const REQUESTS_COOKIE = "joes_requests";
@@ -37,4 +40,25 @@ export function isUnlocked(): boolean {
   const given = Buffer.from(cookies().get(REQUESTS_COOKIE)?.value ?? "");
   const expected = Buffer.from(unlockToken());
   return given.length === expected.length && timingSafeEqual(given, expected);
+}
+
+/** Unlock attempts allowed before the page refuses to check the PIN. */
+export const PIN_LIMITS = { perIpPer15Min: 8, sitewidePerHour: 40 };
+
+/**
+ * Records an unlock attempt, then says whether it may go ahead. The attempt is
+ * saved before counting, so a burst of parallel requests can't all slip under
+ * the limit: each one's count includes every attempt that checked before it.
+ */
+export async function allowPinAttempt(db: Query, ip: string): Promise<boolean> {
+  await db("delete from pin_attempts where attempted_at < now() - interval '1 day'");
+  await db("insert into pin_attempts (ip) values ($1)", [ip]);
+  const [c] = await db(
+    `select count(*) filter (where ip = $1 and attempted_at > now() - interval '15 minutes')::int as ip_count,
+            count(*)::int as site_count
+       from pin_attempts
+      where attempted_at > now() - interval '1 hour'`,
+    [ip],
+  );
+  return Number(c.ip_count) <= PIN_LIMITS.perIpPer15Min && Number(c.site_count) <= PIN_LIMITS.sitewidePerHour;
 }

@@ -83,6 +83,9 @@ export default async function RequestsPage({ searchParams }: { searchParams: { e
             className="rounded-xl border border-white/15 bg-white/[0.05] px-4 py-3 text-lg text-white focus:border-[#ff3b3f] focus:outline-none"
           />
           {searchParams.e === "pin" && <p className="text-sm text-[#ff8a8c]">That PIN didn&apos;t match.</p>}
+          {searchParams.e === "locked" && (
+            <p className="text-sm text-[#ff8a8c]">Too many tries. Wait 15 minutes, then try again.</p>
+          )}
           <button className={`${BTN_PRIMARY} py-3 text-base`}>Open</button>
         </form>
       </Shell>
