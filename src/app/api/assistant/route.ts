@@ -189,10 +189,14 @@ export async function POST(req: NextRequest) {
   }
 
   const client = new Anthropic();
-  const messages: Anthropic.Beta.BetaMessageParam[] = [
-    ...history.map((m) => ({ role: m.role, content: m.content })),
-    // Volatile context goes after the cached system prompt, as an operator note.
-    { role: "system", content: `Right now it is ${nowForAssistant()}.` },
+  const messages: Anthropic.Beta.BetaMessageParam[] = history.map((m) => ({ role: m.role, content: m.content }));
+  // The clock goes in its own system block after the cache breakpoint, so the
+  // cached prompt stays valid. (Sent as a mid-conversation system message, the
+  // API accepted it but it had no effect on Haiku 5.5: the live assistant said
+  // it didn't know the date.)
+  const system: Anthropic.Beta.BetaTextBlockParam[] = [
+    { type: "text", text: ASSISTANT_SYSTEM_PROMPT, cache_control: { type: "ephemeral" } },
+    { type: "text", text: `Right now it is ${nowForAssistant()}.` },
   ];
 
   let booking: ToolOutcome["booking"];
@@ -205,7 +209,7 @@ export async function POST(req: NextRequest) {
         // "medium" (Haiku's default): at "low" it is likelier to skip a tool
         // call, and offering times without checking availability would be wrong.
         output_config: { effort: "medium" },
-        system: [{ type: "text", text: ASSISTANT_SYSTEM_PROMPT, cache_control: { type: "ephemeral" } }],
+        system,
         tools: TOOLS,
         messages,
       });
