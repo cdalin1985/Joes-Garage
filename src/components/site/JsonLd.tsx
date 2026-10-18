@@ -61,6 +61,9 @@ export function localBusinessSchema() {
     ...(site.geo.lat != null && site.geo.lng != null
       ? { geo: { "@type": "GeoCoordinates", latitude: site.geo.lat, longitude: site.geo.lng } }
       : {}),
+    hasMap: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+      `${site.name}, ${site.address.street}, ${site.address.city}, ${site.address.state} ${site.address.zip}`,
+    )}`,
     areaServed: site.serviceArea.map((city) => ({
       "@type": "City",
       name: city,

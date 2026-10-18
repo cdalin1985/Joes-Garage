@@ -19,7 +19,7 @@ import { TextJoe } from "@/components/site/home/TextJoe";
 
 export const metadata: Metadata = {
   title: `Auto Repair in ${site.address.city}, ${site.address.state}`,
-  description: `${site.name} is an independent auto repair shop at ${site.address.street} in ${site.address.city}, Montana. Brakes, diagnostics, oil changes, A/C, engine and transmission work. Call ${site.phone}.`,
+  description: `Independent auto repair at ${site.address.street} in ${site.address.city}, MT. Brakes, diagnostics, oil changes, A/C, engines and transmissions. Call ${site.phone}.`,
   alternates: { canonical: "/" },
 };
 

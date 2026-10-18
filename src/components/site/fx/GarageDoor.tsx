@@ -31,10 +31,15 @@ export function GarageDoor({ name, place }: { name: string; place: string }) {
       tl.current = gsap
         .timeline({ delay: 0.25 })
         .fromTo(q(".door-name"), { opacity: 0, scale: 0.94 }, { opacity: 1, scale: 1, duration: 0.45, ease: "power2.out" })
-        .to(q(".door-gap"), { height: 22, duration: 0.35, ease: "power2.out" }, "<0.1")
+        .fromTo(q(".door-gap"), { scaleY: 0 }, { scaleY: 1, duration: 0.35, ease: "power2.out" }, "<0.1")
         .to(q(".door-gap"), { opacity: 0.55, duration: 0.06, repeat: 3, yoyo: true }, ">")
         .to(q(".door-panel"), { yPercent: -100, duration: 0.85, ease: "power3.inOut" }, ">-0.05")
-        .to(q(".door-gap"), { bottom: "100%", opacity: 0, duration: 0.85, ease: "power3.inOut" }, "<")
+        // Rides up with the door to its top edge (transforms only: no layout shift).
+        .to(
+          q(".door-gap"),
+          { y: () => -(root.current?.clientHeight ?? window.innerHeight), opacity: 0, duration: 0.85, ease: "power3.inOut" },
+          "<",
+        )
         .add(open, "<0.45")
         .set(root.current, { display: "none" });
     },

@@ -45,6 +45,17 @@ export const metadata: Metadata = {
     follow: true,
     googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 },
   },
+  /**
+   * Ownership tags for Google Search Console and Bing Webmaster Tools. Each
+   * tool gives a token when the site is added; put it in the Vercel env var
+   * and redeploy. Unset vars add nothing.
+   */
+  verification: {
+    ...(process.env.GOOGLE_SITE_VERIFICATION ? { google: process.env.GOOGLE_SITE_VERIFICATION } : {}),
+    ...(process.env.BING_SITE_VERIFICATION
+      ? { other: { "msvalidate.01": process.env.BING_SITE_VERIFICATION } }
+      : {}),
+  },
   other: {
     /** Helps mobile browsers and map apps recognize the business details. */
     "business:contact_data:street_address": site.address.street,

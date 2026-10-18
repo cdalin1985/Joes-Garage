@@ -528,10 +528,16 @@ html.fx-intro .door {
   box-shadow: inset 0 -30px 60px -20px rgba(0, 0, 0, 0.6);
   will-change: transform;
 }
+/* Animated with transforms only (scaleY, then y): tweening height/bottom
+   counted as layout shift and pushed the home page's CLS into Google's
+   "poor" range. */
 .door-gap {
   position: absolute;
   inset: auto 0 0 0;
-  height: 0;
+  height: 22px;
+  transform: scaleY(0);
+  transform-origin: bottom;
+  will-change: transform;
   background: linear-gradient(to top, rgba(255, 196, 120, 0.95), rgba(255, 140, 40, 0.45) 40%, transparent);
   box-shadow: 0 0 80px 30px rgba(255, 150, 60, 0.35);
 }
