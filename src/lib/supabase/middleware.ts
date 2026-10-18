@@ -4,7 +4,8 @@ import { SUPABASE_ANON_KEY, SUPABASE_URL, isSupabaseConfigured } from "@/lib/env
 
 /**
  * Routes that do not require authentication: the public marketing website,
- * the sign-in flow, and the customer-facing inspection share link.
+ * the sign-in flow, the customer-facing inspection share link, and the
+ * website assistant's API.
  *
  * Matched exactly — "/" must never be treated as a prefix or it would make
  * the entire staff application public.
@@ -20,6 +21,7 @@ const PUBLIC_EXACT = new Set([
   "/robots.txt",
   "/sitemap.xml",
   "/manifest.webmanifest",
+  "/api/assistant", // the website's chat + booking assistant (validates its own input)
 ]);
 
 /** Routes where everything beneath the prefix is also public. */
