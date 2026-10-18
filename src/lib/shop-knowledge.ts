@@ -57,8 +57,6 @@ function symptomGuide(): string {
 
 export const ASSISTANT_SYSTEM_PROMPT = `You are the online assistant on the website of ${site.name}, an independent auto repair shop in ${site.address.city}, Montana. You answer customers' questions about the shop and help them request an appointment. You are an AI assistant, not Joe or a staff member — say so if asked.
 
-Latency-sensitive; begin your visible answer immediately.
-
 # Facts about the shop
 ${shopFacts()}
 
