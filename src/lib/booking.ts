@@ -1,21 +1,19 @@
 /**
  * Online appointment requests for the website assistant.
  *
- * Open drop-off times come from the shop's hours (site-config) minus what's
- * already in the staff app's Appointment Book. A request is saved there as an
- * unconfirmed ("scheduled") appointment titled "Web request — …" for Joe to
- * confirm with the customer. Server-only: uses the service-role client.
+ * Open drop-off times come from the shop's hours (site-config) minus requests
+ * already holding a slot in the `booking_requests` table (Neon; schema in
+ * db/neon/001_booking_requests.sql). A new request is saved as "requested"
+ * for Joe to confirm on the /requests page. Server-only.
  */
 
-import type { SupabaseClient } from "@supabase/supabase-js";
 import { site } from "@/lib/site-config";
+import { isUniqueViolation, type Query } from "@/lib/db";
 
-/** «REVIEW» with Joe: how online requests are slotted. */
+/** «REVIEW» with Joe: how online requests are slotted (one car per slot). */
 export const booking = {
   /** Length of one drop-off slot; slots start on the hour from opening time. */
   slotMinutes: 60,
-  /** Cars that can be booked into the same slot. */
-  perSlot: 1,
   /** How far ahead customers can request. */
   maxDaysAhead: 30,
   /** No requests for slots starting sooner than this — call instead. */
@@ -25,7 +23,8 @@ export const booking = {
   maxPerHour: 12,
 };
 
-export const WEB_REQUEST_TITLE = "Web request";
+/** Request statuses that hold a slot. */
+const ACTIVE = "('requested', 'confirmed')";
 const TZ = site.timeZone;
 const DAY_MS = 86_400_000;
 
@@ -99,6 +98,15 @@ export function prettyWhen(date: string, time: string): string {
   return `${day} at ${prettySlot(time)}`;
 }
 
+/** Shop-local "Thursday, Oct 15 at 9:00 AM" for a stored instant. */
+export function prettyInstant(t: Date): string {
+  const p = shopParts(t);
+  return prettyWhen(p.date, p.time);
+}
+
+/** Short reference code shown to the customer and on the requests page. */
+export const refOf = (id: string) => id.replace(/-/g, "").slice(0, 8).toUpperCase();
+
 /** Slot start times ("HH:MM") the shop's hours allow on a given date. */
 function slotsForDate(date: string): string[] {
   const day = site.hours.find((h) => h.day === weekdayOf(date));
@@ -110,7 +118,7 @@ function slotsForDate(date: string): string[] {
   return out;
 }
 
-/** "It is Wednesday, 2026-10-14, 10:31 PM in Helena." — for the assistant. */
+/** "Wednesday, 2026-10-14, 10:31 PM shop time (America/Denver)" — for the assistant. */
 export function nowForAssistant(now = new Date()): string {
   const p = shopParts(now);
   return `${p.weekday}, ${p.date}, ${prettySlot(p.time)} shop time (${TZ})`;
@@ -122,10 +130,9 @@ export type OpenDay = { date: string; weekday: string; times: { time: string; la
 
 /**
  * Open drop-off slots from `startDate` for `days` days (max 7), skipping
- * closed days, slots too soon to book, and slots the Appointment Book already
- * fills (anything not cancelled / no-show that overlaps the slot counts).
+ * closed days, slots too soon to book, and slots an active request holds.
  */
-export async function findOpenSlots(db: SupabaseClient, startDate: string, days: number): Promise<OpenDay[]> {
+export async function findOpenSlots(db: Query, startDate: string, days: number): Promise<OpenDay[]> {
   const now = new Date();
   const today = shopParts(now).date;
   const lastDate = addDays(today, booking.maxDaysAhead);
@@ -140,20 +147,13 @@ export async function findOpenSlots(db: SupabaseClient, startDate: string, days:
 
   const rangeStart = shopTimeToUtc(dates[0], "00:00");
   const rangeEnd = shopTimeToUtc(addDays(dates[dates.length - 1], 1), "00:00");
-  const { data, error } = await db
-    .from("appointments")
-    .select("start_time, end_time, status")
-    .lt("start_time", rangeEnd.toISOString())
-    .gte("start_time", new Date(rangeStart.getTime() - DAY_MS).toISOString())
-    .not("status", "in", "(cancelled,no_show)");
-  if (error) throw new Error(`appointments lookup failed: ${error.message}`);
-
+  const rows = await db(
+    `select start_time, end_time from booking_requests
+      where status in ${ACTIVE} and start_time < $2 and end_time > $1`,
+    [rangeStart.toISOString(), rangeEnd.toISOString()],
+  );
+  const busy = rows.map((r) => [new Date(r.start_time as string).getTime(), new Date(r.end_time as string).getTime()]);
   const slotMs = booking.slotMinutes * 60_000;
-  const busy = (data ?? []).map((a) => {
-    const s = new Date(a.start_time).getTime();
-    const e = a.end_time ? new Date(a.end_time).getTime() : s + slotMs;
-    return [s, Math.max(e, s + 1)] as const;
-  });
   const earliest = now.getTime() + booking.minLeadMinutes * 60_000;
 
   return dates.map((date) => ({
@@ -162,9 +162,7 @@ export async function findOpenSlots(db: SupabaseClient, startDate: string, days:
     times: slotsForDate(date)
       .filter((time) => {
         const s = shopTimeToUtc(date, time).getTime();
-        if (s < earliest) return false;
-        const taken = busy.filter(([bs, be]) => bs < s + slotMs && be > s).length;
-        return taken < booking.perSlot;
+        return s >= earliest && !busy.some(([bs, be]) => bs < s + slotMs && be > s);
       })
       .map((time) => ({ time, label: prettySlot(time) })),
   }));
@@ -189,108 +187,45 @@ export type RequestResult =
   | { ok: true; ref: string; when: string; date: string; time: string }
   | { ok: false; reason: "slot_taken" | "too_many" | "invalid_slot"; message: string };
 
-const digits = (s: string | null | undefined) => (s ?? "").replace(/\D/g, "").slice(-10);
-const prettyPhone = (d: string) => `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`;
+const SLOT_TAKEN = { ok: false, reason: "slot_taken", message: "That time is no longer open. Check availability again." } as const;
 
-/** Re-checks the slot, applies spam limits, then writes customer + vehicle + appointment. */
-export async function createWebRequest(db: SupabaseClient, input: RequestInput): Promise<RequestResult> {
+/** Re-checks the slot, applies spam limits, then saves the request. */
+export async function createWebRequest(db: Query, input: RequestInput): Promise<RequestResult> {
   if (!slotsForDate(input.date).includes(input.time)) {
     return { ok: false, reason: "invalid_slot", message: "That time isn't one of the shop's drop-off slots." };
   }
   const open = await findOpenSlots(db, input.date, 1);
-  if (open[0]?.date !== input.date || !open[0].times.some((t) => t.time === input.time)) {
-    return { ok: false, reason: "slot_taken", message: "That time is no longer open. Check availability again." };
-  }
+  if (open[0]?.date !== input.date || !open[0].times.some((t) => t.time === input.time)) return SLOT_TAKEN;
 
-  const phone = prettyPhone(input.phone);
-  const hourAgo = new Date(Date.now() - 3_600_000).toISOString();
-  const dayAgo = new Date(Date.now() - DAY_MS).toISOString();
-  const [{ count: lastHour }, { count: samePhone }] = await Promise.all([
-    db.from("appointments").select("id", { count: "exact", head: true }).like("title", `${WEB_REQUEST_TITLE}%`).gte("created_at", hourAgo),
-    db
-      .from("appointments")
-      .select("id", { count: "exact", head: true })
-      .like("title", `${WEB_REQUEST_TITLE}%`)
-      .like("description", `%${phone}%`)
-      .gte("created_at", dayAgo),
-  ]);
-  if ((lastHour ?? 0) >= booking.maxPerHour || (samePhone ?? 0) >= booking.maxPerPhonePerDay) {
+  const [{ last_hour, same_phone }] = await db(
+    `select
+       count(*) filter (where created_at > now() - interval '1 hour')::int as last_hour,
+       count(*) filter (where phone = $1 and created_at > now() - interval '1 day')::int as same_phone
+     from booking_requests
+     where created_at > now() - interval '1 day'`,
+    [input.phone],
+  );
+  if (Number(last_hour) >= booking.maxPerHour || Number(same_phone) >= booking.maxPerPhonePerDay) {
     return { ok: false, reason: "too_many", message: "Too many online requests right now — please call the shop." };
   }
 
-  // Reuse an existing customer with this phone number, but never edit them.
-  const last4 = input.phone.slice(-4);
-  const { data: candidates } = await db
-    .from("customers")
-    .select("id, phone, mobile")
-    .or(`phone.ilike.%${last4}%,mobile.ilike.%${last4}%`)
-    .limit(50);
-  const existing = (candidates ?? []).find((c) => digits(c.phone) === input.phone || digits(c.mobile) === input.phone);
-
-  let customerId = existing?.id as string | undefined;
-  if (!customerId) {
-    const [first, ...rest] = input.name.trim().split(/\s+/);
-    const { data, error } = await db
-      .from("customers")
-      .insert({
-        first_name: first,
-        last_name: rest.join(" ") || null,
-        phone,
-        email: input.email || null,
-        notes: "Added by the website booking assistant.",
-      })
-      .select("id")
-      .single();
-    if (error) throw new Error(`customer insert failed: ${error.message}`);
-    customerId = data.id as string;
-  }
-
-  let vehicleId: string | null = null;
-  const year = /^\d{4}$/.test(input.vehicleYear) ? Number(input.vehicleYear) : null;
-  if (input.vehicleMake || input.vehicleModel) {
-    const { data, error } = await db
-      .from("vehicles")
-      .insert({ customer_id: customerId, year, make: input.vehicleMake || null, model: input.vehicleModel || null })
-      .select("id")
-      .single();
-    if (!error) vehicleId = data.id as string;
-  }
-
-  const vehicle = [input.vehicleYear, input.vehicleMake, input.vehicleModel].filter(Boolean).join(" ") || "vehicle not given";
+  const vehicle = [input.vehicleYear, input.vehicleMake, input.vehicleModel].filter(Boolean).join(" ");
   const start = shopTimeToUtc(input.date, input.time);
-  const description = [
-    "Requested online through the website assistant. NOT CONFIRMED — contact the customer to confirm.",
-    `Name: ${input.name}`,
-    `Phone: ${phone}`,
-    input.email && `Email: ${input.email}`,
-    `Vehicle: ${vehicle}`,
-    `Concern: ${input.concern}`,
-    input.notes && `Notes: ${input.notes}`,
-    existing && "Phone matched an existing customer record — double-check it's the same person.",
-  ]
-    .filter(Boolean)
-    .join("\n");
+  const end = new Date(start.getTime() + booking.slotMinutes * 60_000);
+  let id: string;
+  try {
+    const [row] = await db(
+      `insert into booking_requests (start_time, end_time, name, phone, email, vehicle, concern, notes)
+       values ($1, $2, $3, $4, $5, $6, $7, $8)
+       returning id`,
+      [start.toISOString(), end.toISOString(), input.name, input.phone, input.email || null, vehicle || null, input.concern, input.notes || null],
+    );
+    id = String(row.id);
+  } catch (err) {
+    // Someone else took the slot between the check and the insert.
+    if (isUniqueViolation(err)) return SLOT_TAKEN;
+    throw err;
+  }
 
-  const { data, error } = await db
-    .from("appointments")
-    .insert({
-      customer_id: customerId,
-      vehicle_id: vehicleId,
-      title: `${WEB_REQUEST_TITLE} — ${vehicle}`.slice(0, 120),
-      description,
-      status: "scheduled",
-      start_time: start.toISOString(),
-      end_time: new Date(start.getTime() + booking.slotMinutes * 60_000).toISOString(),
-    })
-    .select("id")
-    .single();
-  if (error) throw new Error(`appointment insert failed: ${error.message}`);
-
-  return {
-    ok: true,
-    ref: (data.id as string).slice(0, 8).toUpperCase(),
-    when: prettyWhen(input.date, input.time),
-    date: input.date,
-    time: input.time,
-  };
+  return { ok: true, ref: refOf(id), when: prettyWhen(input.date, input.time), date: input.date, time: input.time };
 }

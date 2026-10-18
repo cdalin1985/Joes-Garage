@@ -2,7 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 import { ASSISTANT_SYSTEM_PROMPT } from "@/lib/shop-knowledge";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { getDb } from "@/lib/db";
 import { createWebRequest, findOpenSlots, nowForAssistant, type RequestResult } from "@/lib/booking";
 import { site } from "@/lib/site-config";
 
@@ -116,7 +116,7 @@ function rateLimited(ip: string): boolean {
 type ToolOutcome = { content: string; isError?: boolean; booking?: Extract<RequestResult, { ok: true }> };
 
 async function runTool(name: string, input: unknown): Promise<ToolOutcome> {
-  const db = createAdminClient();
+  const db = getDb();
   if (!db) {
     return {
       content: `Online booking isn't switched on yet. Ask the customer to call ${site.phone} to book.`,
