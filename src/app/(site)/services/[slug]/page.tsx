@@ -14,9 +14,13 @@ export function generateStaticParams() {
 export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
   const service = services.find((s) => s.slug === params.slug);
   if (!service) return {};
+  // Local intent: the town is what turns a search into a phone call. Google
+  // cuts titles off at about 60 characters (and shows the site name above
+  // the result anyway), so the brand is added only when it fits.
+  const local = `${service.metaTitle} in ${site.address.city}, ${site.address.state}`;
+  const branded = `${local} | ${site.name}`;
   return {
-    // Local intent: the town is what turns a search into a phone call.
-    title: `${service.metaTitle} in ${site.address.city}, ${site.address.state}`,
+    title: { absolute: branded.length <= 60 ? branded : local },
     description: service.metaDescription,
     alternates: { canonical: `/services/${service.slug}` },
   };

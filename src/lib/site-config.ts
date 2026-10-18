@@ -48,10 +48,11 @@ export const site = {
   },
 
   /**
-   * Map coordinates. «FILL IN» — open Google Maps, right-click the shop,
-   * click the numbers to copy them. Leave as null to omit from search data.
+   * Map coordinates of 2810 N Cooke St (OpenStreetMap house-level match).
+   * To use the Google pin instead: open Google Maps, right-click the shop,
+   * click the numbers to copy them. Set to null to omit from search data.
    */
-  geo: { lat: null as number | null, lng: null as number | null },
+  geo: { lat: 46.6125182 as number | null, lng: -112.0190552 as number | null },
 
   /**
    * Towns and neighborhoods served — these help you show up in nearby searches.

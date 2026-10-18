@@ -40,13 +40,42 @@ function isPublic(pathname: string): boolean {
   return PUBLIC_PREFIXES.some((p) => pathname.startsWith(p));
 }
 
+/**
+ * First path segments of the staff application (src/app/(app)) and its APIs.
+ * Only these send signed-out visitors to /login. Any other unknown path falls
+ * through to the site's 404 page, so search engines see a real "not found"
+ * instead of a redirect to the staff login.
+ */
+const STAFF_SEGMENTS = new Set([
+  "api",
+  "dashboard",
+  "customers",
+  "vehicles",
+  "estimates",
+  "invoices",
+  "work-orders",
+  "parts",
+  "appointments",
+  "follow-ups",
+  "labor-presets",
+  "accounting",
+  "settings",
+  "staff",
+]);
+
+function isStaffRoute(pathname: string): boolean {
+  return STAFF_SEGMENTS.has(pathname.split("/")[1] ?? "");
+}
+
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
+  const { pathname } = request.nextUrl;
 
-  // Public pages never need the staff session, so don't call Supabase for
-  // them at all — the website keeps working even if the staff database is
-  // down. (/login still checks, to send signed-in staff to the dashboard.)
-  if (isPublic(request.nextUrl.pathname) && request.nextUrl.pathname !== "/login") {
+  // Public pages and non-staff paths never need the staff session, so don't
+  // call Supabase for them at all — the website keeps working even if the
+  // staff database is down. (/login still checks, to send signed-in staff to
+  // the dashboard.)
+  if ((isPublic(pathname) || !isStaffRoute(pathname)) && pathname !== "/login") {
     return response;
   }
 
@@ -74,8 +103,6 @@ export async function updateSession(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
-  const { pathname } = request.nextUrl;
 
   // Unauthenticated users hitting a protected route -> login
   if (!user && !isPublic(pathname)) {

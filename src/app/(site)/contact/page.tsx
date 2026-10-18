@@ -11,7 +11,7 @@ import { ClosingCta, Eyebrow, FaqList, PageHero } from "@/components/site/sectio
 
 export const metadata: Metadata = {
   title: "Contact, Hours & Directions",
-  description: `Find ${site.name} at ${fullAddress}. Call ${site.phone} for an appointment, an estimate, or a second opinion. Hours, directions, and answers to common questions.`,
+  description: `Find ${site.name} at ${fullAddress}. Hours, directions and common questions. Call ${site.phone} for an appointment or estimate.`,
   alternates: { canonical: "/contact" },
 };
 
