@@ -7,6 +7,7 @@ import { ElectricArc, type ArcHandle } from "./ElectricArc";
 import { EmberCanvas, type EmberHandle } from "./EmberCanvas";
 import { Plug3D, type Plug3DHandle } from "./Plug3D";
 import { HeroJoe } from "@/components/site/joe/HeroJoe";
+import { JOE_SPARK_EVENT, tellJoePlug } from "@/components/site/joe/events";
 
 /**
  * The home-page hero: Joe's wordmark assembles itself while a real-time 3D
@@ -137,8 +138,13 @@ export function HeroIgnition({ children }: { children: React.ReactNode }) {
       };
       window.addEventListener("pointermove", onMove, { passive: true });
 
+      // Joe points at the plug and it fires on his cue.
+      const onSpark = () => fire(0.6, 420);
+      window.addEventListener(JOE_SPARK_EVENT, onSpark);
+
       // Scroll away: the plug climbs (and in 3D, spins); the copy drifts off.
-      const stage = q("[data-plug-scroll]");
+      // Joe isn't in the plug's stage, so he stays on the floor.
+      const stage = q("[data-plug-stage]");
       gsap.to(q("[data-hero-text]"), {
         yPercent: 18,
         opacity: 0.15,
@@ -160,6 +166,7 @@ export function HeroIgnition({ children }: { children: React.ReactNode }) {
         stopWaiting();
         idle?.kill();
         window.removeEventListener("pointermove", onMove);
+        window.removeEventListener(JOE_SPARK_EVENT, onSpark);
         splits.forEach((s) => s.revert());
       };
     },
@@ -169,6 +176,7 @@ export function HeroIgnition({ children }: { children: React.ReactNode }) {
   /** Clicking (or pressing Enter on) the plug fires it. */
   const onPlugDown = contextSafe(() => {
     if (prefersReducedMotion()) return;
+    tellJoePlug();
     fire(1.2, 900);
     gsap.fromTo(
       root.current!.querySelector("[data-plug-float]"),

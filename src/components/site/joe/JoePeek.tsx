@@ -3,8 +3,9 @@
 import { JoeSlot } from "./JoeSlot";
 
 /**
- * Small Joe who slides in from the left edge (see peek.ts). Starts invisible;
- * with reduced motion the animation never loads, so he never appears.
+ * Joe "over the counter" in the bottom-left corner (see peek.ts). Renders no
+ * photo until he's needed; with reduced motion the animation never loads, so
+ * he never appears.
  */
 export function JoePeek() {
   return (
@@ -13,9 +14,11 @@ export function JoePeek() {
       behavior="peek"
       interactive={false}
       observe={false}
+      still={false}
+      floor={false}
       testId="joe-peek"
       label=""
-      className="!fixed bottom-24 left-0 z-[55] !h-36 opacity-0 pointer-events-none sm:!h-44 lg:bottom-auto lg:top-[42%] lg:!h-60"
+      className="!fixed bottom-0 left-0 z-[55] !h-52 opacity-0 pointer-events-none sm:!h-60 lg:!h-72"
     />
   );
 }
