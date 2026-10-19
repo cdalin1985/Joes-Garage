@@ -6,7 +6,6 @@ import { JOE_SPARK_EVENT } from "./events";
 import { DUR, EASE, ORIGIN, REST } from "./motion";
 import { MOVES, type Fx, type Move, type MoveName } from "./moves";
 import { drop } from "./quips";
-import { sparks } from "./sparks";
 
 export type Rig = ReturnType<typeof createRig>;
 type Prop = "wrench" | "warn";
@@ -153,7 +152,6 @@ export function createRig(box: HTMLElement, { rest, behavior, clicks, lean, prop
     cut: (pose, at) => cut(tl, pose, at),
     wrench: () => use("wrench"),
     warn: () => use("warn"),
-    sparks: (at) => sparks(tl, idle, 55, 5, at),
     height: box.offsetHeight,
     lean,
     spark: behavior === "hero" ? () => void window.dispatchEvent(new Event(JOE_SPARK_EVENT)) : undefined,

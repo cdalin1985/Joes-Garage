@@ -1,13 +1,13 @@
 "use client";
 
 import { gsap, whenDoorOpen } from "@/components/site/fx/gsap";
-import { WRENCH, type Behavior, type JoeArtName, type PoseName, type QuipSide } from "./art";
+import { WARN, WRENCH, type Behavior, type JoeArtName, type PoseName, type QuipSide } from "./art";
 import { anyBusy, join, joeHidden, listen, type Member } from "./cast";
 import { JOE_HIDDEN_EVENT, JOE_PLUG_EVENT, type JoeHiddenDetail } from "./events";
 import { DUR, EASE } from "./motion";
 import { CLICKS, HERO_CLICKS, type MoveName } from "./moves";
 import { peek } from "./peek";
-import { count, markBorn, say, showing, type QuipId } from "./quips";
+import { age, count, markBorn, say, showing, type QuipId } from "./quips";
 import { createRig } from "./rig";
 
 export type Live = {
@@ -51,12 +51,13 @@ const BEHAVIORS: Partial<Record<Behavior, Setup>> = {
   hero: ({ rig, box, sides, later, beats }) => {
     // Hello, on the first home view of the visit: after the wordmark lands,
     // once he's on screen and the wave is ready (or not at all, after 10 s).
+    // Hiding Joe uses it up (JoeToggle), so showing him again never waves.
     let offDoor = () => {};
     if (!joeHidden() && !flag("joes-hello")) {
       rig.need(["wave"]);
       let until = 0;
       const hello = () => {
-        if (performance.now() > until) return;
+        if (performance.now() > until || flag("joes-hello")) return;
         const ready = () => rig.ratio() >= 0.5 && !joeHidden() && !anyBusy();
         if (!ready()) return later(0.5, hello);
         rig.need(["wave"], 1500).then((ok) => {
@@ -66,7 +67,8 @@ const BEHAVIORS: Partial<Record<Behavior, Setup>> = {
           tl.call(say, [box, "hero-hello", sides, "auto"], "pose+=0.25");
         });
       };
-      offDoor = whenDoorOpen(() => later(2.2, () => ((until = performance.now() + 10_000), hello())));
+      // The line lands 0.34 s into the wave: keep it well past his first 2.5 s, when he volunteers nothing.
+      offDoor = whenDoorOpen(() => later(Math.max(2.2, 2.9 - age(box) / 1000), () => ((until = performance.now() + 10_000), hello())));
     }
     // The plug's the show-off: on its third click of the visit, Joe just says so.
     const offPlug = listen(JOE_PLUG_EVENT, () => {
@@ -78,12 +80,11 @@ const BEHAVIORS: Partial<Record<Behavior, Setup>> = {
   service: ({ rig, box, art, sides, later, beats }) => {
     // He presents his prop (or wrench) once he's half on screen; the line only on the visit's first service page.
     // Not before 2.5 s after going live, when Joe may volunteer a line at all.
-    const born = performance.now();
     const io = new IntersectionObserver(
       ([e]) => {
         if (e.intersectionRatio < 0.5) return;
         io.disconnect();
-        later(Math.max(0.6, 2.6 - (performance.now() - born) / 1000), () => {
+        later(Math.max(0.6, 2.6 - age(box) / 1000), () => {
           const t = count("svc") === 1 ? say(box, `svc-${art}` as QuipId, sides, "auto", DUR.snap) : 0;
           rig.play("present", { dur: Math.max(1.2, t + 0.25) });
         });
@@ -97,28 +98,18 @@ const BEHAVIORS: Partial<Record<Behavior, Setup>> = {
   peek: (ctx) => peek(ctx),
 };
 
-/** A dash-style check-engine light, just past his pointing fingertip. */
-const warnLight = () => {
-  const el = document.createElement("span");
-  el.dataset.warn = "";
-  el.setAttribute("aria-hidden", "true");
-  el.className = "pointer-events-none absolute left-[94%] top-[14%] w-[16%] opacity-0";
+/** A prop image, built the first time a move needs it, above every pose. */
+const prop = (key: "wrench" | "warn", src: string, cls: string) => () => {
+  const el = Object.assign(new Image(), { src, alt: "", draggable: false });
+  el.dataset[key] = "";
+  el.className = `pointer-events-none absolute opacity-0 ${cls}`;
   el.style.zIndex = "999";
-  el.innerHTML =
-    '<svg viewBox="0 0 48 38" class="block w-full" aria-hidden="true"><rect x="1" y="1" width="46" height="36" rx="7" fill="#12100e" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/><path d="M11 15h5v-4h10v4h5l4 4v8l-4 4h-5v3H16l-5-5H8V15z" fill="#ffb02e"/></svg>';
   return el;
 };
-
-/** The loose wrench for the toss, starting in his open hand. */
-const looseWrench = () => {
-  const el = document.createElement("img");
-  el.src = WRENCH;
-  el.alt = "";
-  el.draggable = false;
-  el.dataset.wrench = "";
-  el.className = "pointer-events-none absolute left-[13%] top-[24%] w-[30%] opacity-0";
-  el.style.zIndex = "999";
-  return el;
+/** The loose wrench for the toss, starting in his open hand; the dash-style check-engine light, just past his pointing fingertip. */
+const PROPS = {
+  wrench: prop("wrench", WRENCH, "left-[13%] top-[24%] w-[30%]"),
+  warn: prop("warn", WARN, "left-[94%] top-[15%] w-[20%]"),
 };
 
 /** Bring a server-rendered Joe to life. Returns at once: poses are fetched only when he's about to use them. */
@@ -129,7 +120,7 @@ export function goLive(box: HTMLElement, art: JoeArtName, behavior: Behavior): L
     behavior,
     lean: LEAN[behavior],
     clicks: behavior === "hero" ? HERO_CLICKS : art === "base" ? CLICKS : ["present"],
-    props: { wrench: looseWrench, warn: warnLight },
+    props: PROPS,
     onClick: (name, tl) => {
       const line = name === "present" ? ([`svc-${art}`, "pose"] as [QuipId, string]) : LINES[name];
       if (line) tl.call(say, [box, line[0], sides, "prompted"], line[1]);

@@ -14,7 +14,8 @@ function toggle() {
   if (root.classList.contains("joe-leaving")) return;
   const hide = !root.classList.contains("joe-hidden");
   try {
-    if (hide) sessionStorage.setItem("joes-hidden", "1");
+    // Hiding uses up the hero's hello too, so showing him again never waves.
+    if (hide) (sessionStorage.setItem("joes-hidden", "1"), sessionStorage.setItem("joes-hello", "1"));
     else sessionStorage.removeItem("joes-hidden");
   } catch {}
   window.dispatchEvent(new CustomEvent<JoeHiddenDetail>(JOE_HIDDEN_EVENT, { detail: { hidden: hide } }));

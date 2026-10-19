@@ -120,7 +120,7 @@ export function HoursJoe({ hours, timeZone, lines }: { hours: Day[]; timeZone: s
         <p className="mt-1 text-sm text-white/60" data-testid="hours-joe-line">
           {state?.line ?? lines.map((l) => `${l.days} ${l.hours}`).join(" · ")}
         </p>
-        <p data-joe-hint className="mt-2 text-xs text-white/40" data-testid="hours-joe-side">
+        <p data-joe-hint className="mt-2 text-xs text-white/60" data-testid="hours-joe-side">
           {side === "front" ? "Tap Joe to see the hours" : "Tap Joe to flip it back"}
         </p>
       </div>

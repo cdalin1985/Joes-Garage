@@ -25,6 +25,8 @@ export type JoeArtName = Extract<PoseName, "base" | "rotor" | "oilCan" | "batter
 
 /** Loose wrench Joe tosses and catches in the toss pose. */
 export const WRENCH = "/joe/joe-wrench.webp";
+/** The dash-style check-engine light he points at. */
+export const WARN = "/joe/joe-check-engine.svg";
 
 export const JOE_W = 560;
 export const JOE_H = 916;

@@ -9,8 +9,6 @@ export type Fx = {
   cut: (pose: PoseName, at: number) => void;
   wrench: () => HTMLElement;
   warn: () => HTMLElement;
-  /** Spark burst off his cap brim. */
-  sparks: (at: number) => void;
   /** Box height in px, for props that travel a share of Joe's height. */
   height: number;
   /** +1 when the page content is to Joe's right, -1 when it's to his left. */
@@ -84,9 +82,11 @@ export const MOVES = {
     run: (tl, el, _dur, fx) => {
       const w = fx.wrench();
       beat(tl, el, fx, "toss");
+      // A real throw: it slows to the top of its arc and falls back, spinning at a steady rate into the catch.
       tl.set(w, { opacity: 1, y: 0, rotation: 0 }, 0.08)
-        .to(w, { y: -0.3 * fx.height, rotation: 270, duration: DUR.base, ease: EASE.out }, 0.08)
-        .to(w, { y: 0, rotation: 540, duration: DUR.base, ease: EASE.in }, 0.5)
+        .to(w, { rotation: 540, duration: DUR.base * 2, ease: EASE.linear }, 0.08)
+        .to(w, { y: -0.3 * fx.height, duration: DUR.base, ease: EASE.up }, 0.08)
+        .to(w, { y: 0, duration: DUR.base, ease: EASE.in }, 0.5)
         .set(w, { opacity: 0 }, 0.95)
         .addLabel("hit", 0.92);
       dip(tl, el, 0.92, 0.6, DUR.base);
@@ -115,7 +115,8 @@ export const MOVES = {
     run: (tl, el, dur, fx) => {
       beat(tl, el, fx, "listen");
       tl.to(el, { rotation: -1, duration: DUR.base, ease: EASE.out }, DUR.snap);
-      tl.to(el, { rotation: -1.4, duration: DUR.slow, ease: EASE.inOut }, 1.3);
+      // Only if the hold outlasts it, so it never overlaps the release.
+      if (dur >= 1.3 + DUR.slow) tl.to(el, { rotation: -1.4, duration: DUR.slow, ease: EASE.inOut }, 1.3);
       return dur;
     },
   },
@@ -184,13 +185,13 @@ export const MOVES = {
       return 0.7;
     },
   },
-  // A weight shift while the sign flips.
+  // A weight shift while the sign flips (after the rig's square-up beat, if a flip interrupted one).
   shift: {
     poses: [],
     run: (tl, el, _dur, fx) => {
-      tl.to(el, { rotation: 0.6 * fx.lean, duration: DUR.quick, ease: EASE.out }, 0);
-      tl.to(el, { rotation: 0, duration: DUR.base, ease: EASE.inOut }, 0.3);
-      return 0.72;
+      tl.to(el, { rotation: 0.6 * fx.lean, duration: DUR.quick, ease: EASE.out }, DUR.snap);
+      tl.to(el, { rotation: 0, duration: DUR.base, ease: EASE.inOut }, DUR.snap + DUR.quick);
+      return 0.73;
     },
   },
   // He lifts what he's holding a touch toward the page and holds it there.
@@ -212,7 +213,7 @@ export const MOVES = {
       return 1.9;
     },
   },
-  // Booking: thumbs up, a four-step jig, a dead stop on a cap tip, sparks off the brim.
+  // Booking: thumbs up, a four-step jig, a dead stop on a cap tip (chat.ts adds sparks off the brim at 1.81).
   celebrate: {
     poses: ["thumb", "jigA", "jigB", "cap"],
     run: (tl, el, _dur, fx) => {
@@ -226,7 +227,6 @@ export const MOVES = {
       tl.addLabel("hit", 1.7).to(el, { yPercent: 0.4, rotation: 0, duration: DUR.snap, ease: EASE.in }, "hit");
       fx.cut("cap", 1.79);
       tl.to(el, { yPercent: 0, duration: DUR.base, ease: EASE.out }, 1.79);
-      fx.sparks(1.81);
       return 3.8;
     },
   },

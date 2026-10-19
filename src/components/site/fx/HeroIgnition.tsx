@@ -196,7 +196,7 @@ export function HeroIgnition({ children }: { children: React.ReactNode }) {
           {children}
         </div>
 
-        <div data-plug-scroll className="relative order-1 flex justify-center lg:order-2">
+        <div className="relative order-1 flex justify-center lg:order-2">
           <HeroJoe />
           <div data-plug-stage className="relative h-[30svh] sm:h-[44svh] lg:h-[76svh]">
             <Plug3D
