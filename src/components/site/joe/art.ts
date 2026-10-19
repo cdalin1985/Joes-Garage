@@ -25,8 +25,16 @@ export type JoeArtName = Extract<PoseName, "base" | "rotor" | "oilCan" | "batter
 
 /** Loose wrench Joe tosses and catches in the toss pose. */
 export const WRENCH = "/joe/joe-wrench.webp";
+/** The dash-style check-engine light he points at. */
+export const WARN = "/joe/joe-check-engine.svg";
 
 export const JOE_W = 560;
 export const JOE_H = 916;
 
+/** Sideways nudge (xPercent of the image) that keeps each pose's boots where joe.webp's are (measured from the alpha masks). */
+export const ANCHOR_X: Partial<Record<PoseName, number>> = { wince: -7, point: -5, cap: 3.5, listen: 3 };
+
 export type Behavior = "hero" | "noise" | "service" | "hours" | "peek";
+
+/** Where Joe's caption bubble sits: beside his head, or just above his cap. */
+export type QuipSide = "right" | "left" | "top";

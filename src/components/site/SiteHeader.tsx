@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { site } from "@/lib/site-config";
 import { BrandMark } from "./BrandMark";
+import { JoeToggle } from "./joe/JoeToggle";
 
 const NAV = [
   { href: "/services", label: "Services" },
@@ -31,6 +32,8 @@ export function SiteHeader() {
               {n.label}
             </Link>
           ))}
+          <span aria-hidden="true" className="mx-1 h-5 w-px bg-white/10" />
+          <JoeToggle variant="header" />
           <a href={`tel:${site.phoneHref}`} className="btn-ignite ml-3 !rounded-xl !px-4 !py-2 text-sm">
             {site.phone}
           </a>
@@ -39,7 +42,7 @@ export function SiteHeader() {
         <a
           href={`tel:${site.phoneHref}`}
           aria-label={`Call ${site.phone}`}
-          className="btn-ignite ml-auto !rounded-xl !p-0 h-10 w-10 md:hidden"
+          className="btn-ignite ml-auto !rounded-xl !p-0 h-10 w-10 md:!hidden"
         >
           <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2Z" />
@@ -73,6 +76,7 @@ export function SiteHeader() {
                 {n.label}
               </Link>
             ))}
+            <JoeToggle variant="menu" />
             <a href={`tel:${site.phoneHref}`} className="btn-ignite mt-2 w-full">
               Call {site.phone}
             </a>

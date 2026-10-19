@@ -4,6 +4,7 @@ import { z } from "zod";
 import { ASSISTANT_SYSTEM_PROMPT } from "@/lib/shop-knowledge";
 import { getDb } from "@/lib/db";
 import { createWebRequest, findOpenSlots, nowForAssistant, type RequestResult } from "@/lib/booking";
+import { emailNewRequest } from "@/lib/notify";
 import { site } from "@/lib/site-config";
 
 /**
@@ -149,6 +150,16 @@ async function runTool(name: string, input: unknown): Promise<ToolOutcome> {
       notes: d.notes,
     });
     if (!result.ok) return { content: result.message, isError: true };
+    await emailNewRequest({
+      ref: result.ref,
+      when: result.when,
+      name: d.name,
+      phone: d.phone,
+      email: d.email,
+      vehicle: [d.vehicle_year, d.vehicle_make, d.vehicle_model].filter(Boolean).join(" "),
+      concern: d.concern,
+      notes: d.notes,
+    });
     return { content: JSON.stringify(result), booking: result };
   }
   return { content: `Unknown tool ${name}.`, isError: true };

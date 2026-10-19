@@ -1,126 +1,192 @@
 "use client";
 
 import { gsap, whenDoorOpen } from "@/components/site/fx/gsap";
-import { createRig, type Rig } from "./rig";
-import { CLICK_MOVES, PROP_CLICKS, SOUND_MOVES, posesFor, type MoveName } from "./moves";
-import { POSES, WRENCH, type Behavior, type JoeArtName, type PoseName } from "./art";
-import { JOE_NOISE_EVENT, type JoeNoiseDetail } from "./events";
-import { peek, PEEK_MOVES } from "./peek";
+import { WARN, WRENCH, type Behavior, type JoeArtName, type PoseName, type QuipSide } from "./art";
+import { anyBusy, join, joeHidden, listen, type Member } from "./cast";
+import { JOE_HIDDEN_EVENT, JOE_PLUG_EVENT, type JoeHiddenDetail } from "./events";
+import { DUR, EASE } from "./motion";
+import { CLICKS, HERO_CLICKS, type MoveName } from "./moves";
+import { peek } from "./peek";
+import { age, count, markBorn, say, showing, type QuipId } from "./quips";
+import { createRig } from "./rig";
 
 export type Live = {
   click: () => void;
   hover: (on: boolean) => void;
-  /** Nod and flip the sign's painted face edge-on, running `mid` while it's invisible. */
-  flip: (mid: () => void) => void;
+  /** Shift his weight and flap the sign's face over, running `mid` while it's edge-on. */
+  flip: (mid: () => void, manual?: boolean) => void;
   destroy: () => void;
 };
 
-type Ctx = { rig: Rig; box: HTMLElement; art: JoeArtName };
+/** Where each Joe's bubble may go (in order of preference), and which side of him the page content is on. */
+const SIDES: Record<Behavior, QuipSide[]> = { hero: ["top"], noise: ["left", "top"], service: ["left", "top"], hours: ["right", "top"], peek: ["right", "top"] };
+const LEAN: Record<Behavior, 1 | -1> = { hero: 1, noise: -1, service: -1, hours: 1, peek: 1 };
+/** The line each click move earns (once per visit), and where on its timeline. */
+const LINES: Partial<Record<MoveName, [QuipId, string]>> = {
+  capTip: ["click-cap", "pose+=0.25"],
+  thumbsUp: ["click-thumb", "pose+=0.25"],
+  pointSpark: ["click-spark", "hit+=0.4"],
+  wrenchSpin: ["click-catch", "hit+=0.25"],
+};
+
+type Ctx = Member & {
+  /** A delayed call that dies with this Joe. */
+  later: (s: number, fn: () => void) => void;
+  /** Now and then, when the page is quiet, play `name` (at most `max` per page view, and only if `poses` are ready). */
+  beats: (max: number, name: MoveName, poses: PoseName[]) => void;
+};
 type Setup = (ctx: Ctx) => (() => void) | void;
 
-const NOISE_MOVES = Object.values(SOUND_MOVES);
-
-/** Moves (and so poses) each behaviour can play. */
-const USES: Record<Behavior, MoveName[]> = {
-  hero: [...CLICK_MOVES, "wave"],
-  noise: [...CLICK_MOVES, ...NOISE_MOVES],
-  service: CLICK_MOVES,
-  hours: [],
-  peek: [...PEEK_MOVES, ...NOISE_MOVES],
+/** A once-per-visit flag in sessionStorage. */
+const flag = (key: string, set?: boolean) => {
+  try {
+    if (set) sessionStorage.setItem(key, "1");
+    return !!sessionStorage.getItem(key);
+  } catch {
+    return false;
+  }
 };
 
-const listen = <T>(type: string, fn: (d: T) => void) => {
-  const on = (e: Event) => fn((e as CustomEvent<T>).detail);
-  window.addEventListener(type, on);
-  return () => window.removeEventListener(type, on);
-};
-
-const BEHAVIORS: Record<Behavior, Setup> = {
-  hero: ({ rig }) => {
-    let hello: gsap.core.Tween | undefined;
-    const off = whenDoorOpen(() => void (hello = gsap.delayedCall(1.4, () => void rig.play("wave"))));
-    rig.startIdle({ fidgets: ["tap", "wave"] });
-    return () => (off(), hello?.kill());
+const BEHAVIORS: Partial<Record<Behavior, Setup>> = {
+  hero: ({ rig, box, sides, later, beats }) => {
+    // Hello, on the first home view of the visit: after the wordmark lands,
+    // once he's on screen and the wave is ready (or not at all, after 10 s).
+    // Hiding Joe uses it up (JoeToggle), so showing him again never waves.
+    let offDoor = () => {};
+    if (!joeHidden() && !flag("joes-hello")) {
+      rig.need(["wave"]);
+      let until = 0;
+      const hello = () => {
+        if (performance.now() > until || flag("joes-hello")) return;
+        const ready = () => rig.ratio() >= 0.5 && !joeHidden() && !anyBusy();
+        if (!ready()) return later(0.5, hello);
+        rig.need(["wave"], 1500).then((ok) => {
+          const tl = ok && ready() ? rig.play("wave") : null;
+          if (!tl) return later(0.5, hello);
+          flag("joes-hello", true);
+          tl.call(say, [box, "hero-hello", sides, "auto"], "pose+=0.25");
+        });
+      };
+      // The line lands 0.34 s into the wave: keep it well past his first 2.5 s, when he volunteers nothing.
+      offDoor = whenDoorOpen(() => later(Math.max(2.2, 2.9 - age(box) / 1000), () => ((until = performance.now() + 10_000), hello())));
+    }
+    // The plug's the show-off: on its third click of the visit, Joe just says so.
+    const offPlug = listen(JOE_PLUG_EVENT, () => {
+      if (count("plug") === 3 && rig.ratio() >= 0.5 && !anyBusy()) later(0.6, () => say(box, "plug-3", sides, "prompted"));
+    });
+    beats(2, "capTip", ["cap"]);
+    return () => (offDoor(), offPlug());
   },
-  noise: ({ rig }) => {
-    rig.startIdle();
-    return listen<JoeNoiseDetail>(JOE_NOISE_EVENT, ({ sound }) =>
-      sound ? rig.play(SOUND_MOVES[sound], sound === "none" ? 2.2 : 2.5) : rig.stop(),
+  service: ({ rig, box, art, sides, later, beats }) => {
+    // He presents his prop (or wrench) once he's half on screen; the line only on the visit's first service page.
+    // Not before 2.5 s after going live, when Joe may volunteer a line at all.
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (e.intersectionRatio < 0.5) return;
+        io.disconnect();
+        later(Math.max(0.6, 2.6 - age(box) / 1000), () => {
+          const t = count("svc") === 1 ? say(box, `svc-${art}` as QuipId, sides, "auto", DUR.snap) : 0;
+          rig.play("present", { dur: Math.max(1.2, t + 0.25) });
+        });
+      },
+      { threshold: 0.5 },
     );
+    io.observe(box);
+    beats(1, "present", []);
+    return () => io.disconnect();
   },
-  service: ({ rig, art }) => {
-    const held = art !== "base";
-    const t = gsap.delayedCall(0.7, () => void rig.play(held ? "propShow" : "wave"));
-    rig.startIdle({ fidgets: held ? ["nod", "propShow"] : ["tap", "wave"] });
-    return () => void t.kill();
-  },
-  hours: ({ rig }) => rig.startIdle({ fidgets: ["nod"] }),
-  peek: ({ rig, box }) => peek(rig, box),
+  peek: (ctx) => peek(ctx),
 };
 
-const load = (pose: PoseName) => {
-  const img = new Image();
-  img.src = POSES[pose];
-  img.alt = "";
-  img.draggable = false;
-  img.dataset.pose = pose;
-  img.className = "joe-art absolute inset-0 h-full w-full select-none";
-  return img.decode().then(() => img);
-};
-
-/** A small check-engine light Joe points at. */
-const warnLight = () => {
-  const el = document.createElement("div");
-  el.dataset.warn = "";
-  el.className = "pointer-events-none absolute right-[-6%] top-[18%] w-[22%] opacity-0";
-  el.innerHTML =
-    '<svg viewBox="0 0 48 38" aria-hidden="true"><rect x="2" y="2" width="44" height="34" rx="8" fill="#ffb020" stroke="#0a0908" stroke-width="4"/><path d="M11 15h5v-4h10v4h5l4 4v8l-4 4h-5v3H16l-5-5H8V15z" fill="#0a0908"/></svg>';
+/** A prop image, built the first time a move needs it, above every pose. */
+const prop = (key: "wrench" | "warn", src: string, cls: string) => () => {
+  const el = Object.assign(new Image(), { src, alt: "", draggable: false });
+  el.dataset[key] = "";
+  el.className = `pointer-events-none absolute opacity-0 ${cls}`;
+  el.style.zIndex = "999";
   return el;
 };
-
-/** The loose wrench for the toss, starting in Joe's open hand. */
-const looseWrench = () => {
-  const el = document.createElement("img");
-  el.src = WRENCH;
-  el.alt = "";
-  el.dataset.wrench = "";
-  el.className = "pointer-events-none absolute left-[13%] top-[24%] w-[30%] opacity-0";
-  return el;
+/** The loose wrench for the toss, starting in his open hand; the dash-style check-engine light, just past his pointing fingertip. */
+const PROPS = {
+  wrench: prop("wrench", WRENCH, "left-[13%] top-[24%] w-[30%]"),
+  warn: prop("warn", WARN, "left-[94%] top-[15%] w-[20%]"),
 };
 
-/** Stack every pose this Joe needs over the still image (same box, so no shift) and start the rig. */
-export async function goLive(box: HTMLElement, art: JoeArtName, behavior: Behavior): Promise<Live> {
-  const poses: PoseName[] = [art, ...posesFor(art === "base" ? USES[behavior] : [])].filter((p, i, a) => a.indexOf(p) === i);
-  const imgs = await Promise.all(poses.map(load));
-  const stage = document.createElement("div");
-  stage.className = "pointer-events-none absolute inset-0";
-  imgs.forEach((img) => (img.style.opacity = img.dataset.pose === art ? "1" : "0"));
-  stage.append(...imgs, warnLight(), looseWrench());
-  const still = box.querySelector<HTMLElement>("[data-joe-still]");
-  box.insertBefore(stage, still?.nextSibling ?? null);
-  if (still) still.style.visibility = "hidden";
+/** Bring a server-rendered Joe to life. Returns at once: poses are fetched only when he's about to use them. */
+export function goLive(box: HTMLElement, art: JoeArtName, behavior: Behavior): Live {
+  const sides = SIDES[behavior];
+  const rig = createRig(box, {
+    rest: art,
+    behavior,
+    lean: LEAN[behavior],
+    clicks: behavior === "hero" ? HERO_CLICKS : art === "base" ? CLICKS : ["present"],
+    props: PROPS,
+    onClick: (name, tl) => {
+      const line = name === "present" ? ([`svc-${art}`, "pose"] as [QuipId, string]) : LINES[name];
+      if (line) tl.call(say, [box, line[0], sides, "prompted"], line[1]);
+    },
+  });
+  markBorn(box);
+  if (behavior === "peek") gsap.set(box, { opacity: 1, xPercent: -16, yPercent: 100 });
+  const me: Member = { behavior, rig, box, art, sides };
+  const leave = join(me);
+  const offHidden = listen<JoeHiddenDetail>(JOE_HIDDEN_EVENT, ({ hidden }) => rig.setHidden(hidden));
 
-  const clickMoves = art === "sign" ? (["nod"] as MoveName[]) : art === "base" ? CLICK_MOVES : PROP_CLICKS;
-  const followers = [...box.querySelectorAll<HTMLElement>("[data-sign]")];
-  const rig = createRig(stage, { rest: art, clickMoves, followers });
-  const off = BEHAVIORS[behavior]({ rig, box, art });
+  let dead = false;
+  const timers = new Set<gsap.core.Tween>();
+  const later = (s: number, fn: () => void) => {
+    if (dead) return;
+    const t = gsap.delayedCall(s, () => (timers.delete(t), fn()));
+    timers.add(t);
+  };
+  let over = false;
+  let overAt = -Infinity;
+  const beats = (max: number, name: MoveName, poses: PoseName[]) => {
+    const quiet = () => !anyBusy() && rig.ratio() >= 0.5 && !over && performance.now() - overAt > 8000 && !showing() && !joeHidden();
+    let n = 0;
+    const next = () =>
+      later(gsap.utils.random(20, 30), async () => {
+        if (quiet() && (await rig.need(poses, 1500)) && quiet() && rig.play(name)) n++;
+        if (n < max) next();
+      });
+    next();
+  };
+  const off = BEHAVIORS[behavior]?.({ ...me, later, beats });
+
+  const face = box.querySelector<HTMLElement>("[data-sign-face]");
+  let flipTl: gsap.core.Timeline | undefined;
+  let flips = 0;
 
   return {
-    click: () => void rig.playRandomClick(),
-    hover: rig.hover,
-    flip: (mid) => {
-      rig.play("nod");
-      gsap
+    click: rig.click,
+    hover: (on) => {
+      over = on;
+      overAt = performance.now();
+      rig.hover(on);
+    },
+    flip: (mid, manual) => {
+      if (!face) return mid();
+      flipTl?.progress(1);
+      rig.play("shift");
+      // A departure-board flap: over the top edge-on, swap, and down the other side.
+      flipTl = gsap
         .timeline()
-        .to(followers, { scaleX: 0, duration: 0.16, ease: "power2.in" })
+        .set(face, { transformPerspective: 500, transformOrigin: "50% 50%" })
+        .to(face, { rotationX: -90, duration: DUR.quick, ease: EASE.in })
         .call(mid)
-        .to(followers, { scaleX: 1, duration: 0.28, ease: "back.out(2)" });
+        .set(face, { rotationX: 90 })
+        .to(face, { rotationX: 0, duration: DUR.base, ease: EASE.out }, "+=0.03");
+      if (manual && ++flips === 3) later(0.5, () => say(box, "hours-flips", sides, "prompted"));
     },
     destroy: () => {
+      dead = true;
+      timers.forEach((t) => t.kill());
       off?.();
+      offHidden();
+      leave();
+      flipTl?.kill();
+      if (face) gsap.set(face, { clearProps: "all" });
       rig.destroy();
-      stage.remove();
-      if (still) still.style.visibility = "";
     },
   };
 }

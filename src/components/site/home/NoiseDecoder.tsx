@@ -146,7 +146,10 @@ export function NoiseDecoder({ serviceNames }: { serviceNames: Record<string, st
   const pick = (id: string) => {
     stop();
     setActive(id);
-    if (symptoms.find((x) => x.id === id)?.sound === "none") tellJoe("none");
+    // The check-engine light has no sound, so Joe reacts now; otherwise he just gets the pose ready.
+    const sound = symptoms.find((x) => x.id === id)?.sound;
+    if (sound === "none") tellJoe("none");
+    else if (sound) tellJoe(sound, true);
   };
 
   const hear = () => {
@@ -214,7 +217,13 @@ export function NoiseDecoder({ serviceNames }: { serviceNames: Record<string, st
 
           <div className="mt-4 flex flex-wrap gap-3">
             {s.sound !== "none" ? (
-              <button type="button" onClick={playing ? stop : hear} className="btn-ghost-ign">
+              <button
+                type="button"
+                onClick={playing ? stop : hear}
+                onPointerEnter={() => tellJoe(s.sound, true)}
+                onFocus={() => tellJoe(s.sound, true)}
+                className="btn-ghost-ign"
+              >
                 {playing ? (
                   <>
                     <span aria-hidden="true">■</span> Stop
