@@ -36,7 +36,8 @@ export function chat(c: Corner): [(d: JoeChatDetail) => void, () => void] {
     }
     if (joeHidden() || !clear()) return null;
     rig.need(MOVES[name].poses);
-    if (!(await rig.need(["base"], 1500)) || !mine()) return null;
+    // Re-check after the wait: a resident Joe may have scrolled into view, or the corner filled.
+    if (!(await rig.need(["base"], 1500)) || !mine() || lead() || joeHidden() || !clear()) return null;
     rise(() => {
       const t = line ? say(box, line, sides, "prompted", DUR.snap + 0.25, MOVES[name].poses[0]) : 0;
       rig.play(name, { dur: Math.max(dur, t) });
@@ -52,7 +53,9 @@ export function chat(c: Corner): [(d: JoeChatDetail) => void, () => void] {
     if (m === me && (joeHidden() || !clear())) return;
     c.party = performance.now() + 6000; // upper bound until the move is built
     const jig = m.art === "base" && (await m.rig.need(MOVES.celebrate.poses, 1500));
-    if (!mine() || (m === me && !(await rig.need(["base"], 1500)))) return void (c.party = 0);
+    // For the corner Joe, re-check after the waits (see act).
+    if (!mine() || (m === me && (!(await rig.need(["base"], 1500)) || !mine() || lead() || joeHidden() || !clear())))
+      return void (c.party = 0);
     const go = () => {
       const tl = m.rig.play(jig ? "celebrate" : "present");
       if (!tl) return void (c.party = 0);
